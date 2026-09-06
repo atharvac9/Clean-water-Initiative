@@ -81,7 +81,7 @@ def render_technical_approach():
                 <h4 style="color:#ffffff; margin: 4px 0 8px 0;">CLIP Vision AI & Rule Engine</h4>
                 <p style="color:#94a3b8; font-size: 12px; line-height:1.5;">
                     Executes zero-shot photo classification via OpenAI CLIP (ViT-B/32) and feeds class probabilities 
-                    alongside satellite $\Delta\\text{NDVI}$ and $\Delta\\text{NDWI}$ into the cross-validation rule engine.
+                    alongside satellite &Delta;NDVI and &Delta;NDWI into the cross-validation rule engine.
                 </p>
             </div>
             <div style="background: rgba(13, 43, 62, 0.7); border: 1px solid rgba(71, 85, 105, 0.4); 
@@ -231,7 +231,7 @@ def render_technical_approach():
 
         st.markdown("""
         > **⚠️ Photo Discrepancy Rule:** If the CLIP predicted class does not match the claimed intervention with 
-        > confidence $> 60\%$, the site is automatically flagged with an explicit visual mismatch warning.
+        > confidence > 60%, the site is automatically flagged with an explicit visual mismatch warning.
         """)
 
     # ── TAB 5: Tooling & Tech Stack ──────────────────────────────────────────
