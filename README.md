@@ -21,7 +21,7 @@ This platform solves this challenge by fusing **field photos** with **Sentinel-2
 
 ## 🌟 Demo & Walkthrough
 
-Check out the full [**Demo Walkthrough & Results Guide**](docs/DEMO_WALKTHROUGH.md) and [**Implementation Plan**](docs/IMPLEMENTATION_PLAN.md).
+Check out the full [**Technical Architecture & Approach Specification**](docs/TECHNICAL_APPROACH.md), [**Demo Walkthrough & Results Guide**](docs/DEMO_WALKTHROUGH.md), and [**Implementation Plan**](docs/IMPLEMENTATION_PLAN.md).
 
 ### 3D Interactive WebGL Sensor Globe
 ![Main Dashboard](docs/assets/dashboard_main.png)

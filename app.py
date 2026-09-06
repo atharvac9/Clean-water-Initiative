@@ -33,6 +33,7 @@ from src.health_score import compute_health_score, compute_all_health_scores, co
 from src.map_builder import build_map
 from utils.db_utils import init_db, save_sites, save_analysis, load_all_results, has_results
 from globe_selector import globe_selector
+from src.technical_page import render_technical_approach
 
 # ─── Dark Theme CSS (Space Grotesk & IBM Plex Mono) ──────────────────────────
 st.markdown("""
@@ -474,6 +475,30 @@ def run_analysis(sites_df, progress_callback=None):
 
 def main():
     render_header()
+
+    # Top-level Navigation Switcher
+    nav_col1, nav_col2 = st.columns([2.5, 1.5])
+    with nav_col1:
+        current_nav = st.radio(
+            "Navigation",
+            ["🛰️ Live Watershed Monitor", "📖 Technical Architecture & Approach"],
+            horizontal=True,
+            label_visibility="collapsed",
+            key="app_main_navigation"
+        )
+    with nav_col2:
+        st.markdown("""
+        <div style="text-align:right; padding-top:4px;">
+            <a href="https://github.com/atharvac9/Clean-water-Initiative/blob/main/docs/TECHNICAL_APPROACH.md" 
+               target="_blank" style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:#3ddc97; text-decoration:none;">
+               📄 GitHub Technical Spec ↗
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
+
+    if current_nav == "📖 Technical Architecture & Approach":
+        render_technical_approach()
+        return
 
     sites_df = load_sites()
     if sites_df.empty:
