@@ -9,6 +9,8 @@
 
 > **Field Evidence × Satellite Intelligence** — Ground Truth Verification and Condition Monitoring Layer for Watershed Interventions.
 
+[![Deploy to Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/deploy?repository=atharvac9/Clean-water-Initiative&branch=main&mainModule=app.py)
+
 ---
 
 ## 📌 Problem Statement
@@ -155,6 +157,22 @@ Expected output:
 - **7 sites confirmed**
 - **S06 flagged as ANOMALY** (NDWI contradiction, lack of water signature, degraded land classification)
 - Pipeline validation: **PASSED**
+
+---
+
+## 🚀 Deployment
+
+The app is production-ready for deployment on multiple platforms:
+
+- **1-Click Streamlit Community Cloud (Recommended & Free)**: Click the deploy badge above or visit [share.streamlit.io](https://share.streamlit.io/deploy?repository=atharvac9/Clean-water-Initiative&branch=main&mainModule=app.py).
+- **Hugging Face Spaces**: Deploy as a Streamlit Space with 16GB free RAM.
+- **Docker Container**: Build and run locally or on Render/Railway/Fly.io using the included `Dockerfile`:
+  ```bash
+  docker build -t watershed-monitor .
+  docker run -p 8501:8501 watershed-monitor
+  ```
+
+For detailed platform-specific walkthroughs and Earth Engine credentials configuration, see the [**Complete Deployment Guide**](docs/DEPLOYMENT.md).
 
 ---
 
