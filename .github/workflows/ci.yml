@@ -3,10 +3,9 @@ name: CI — Backend Tests
 on:
   push:
     branches: [main]
-    paths: ['backend/**']
   pull_request:
     branches: [main]
-    paths: ['backend/**']
+  workflow_dispatch:
 
 jobs:
   test:
@@ -25,9 +24,19 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements*.txt
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libpango-1.0-0 \
+            libharfbuzz0b \
+            libpangoft2-1.0-0 \
+            libgomp1
+
       - name: Install dependencies
         run: |
           pip install --upgrade pip
+          pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements.txt -r requirements-dev.txt
 
       - name: Run tests
