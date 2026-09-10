@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import { Crosshair, Check, Sparkles, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Crosshair, Check, Sparkles, AlertCircle, ArrowRight, Loader2, MapPin } from "lucide-react";
 import { runAdHocAnalysis, createSite } from "../lib/api";
 import { ActivityType, AnalysisResult, Site } from "../lib/types";
 import { HealthGauge } from "./HealthGauge";
+import { LocationSearchInput } from "./LocationSearchInput";
 
 interface AdHocScannerModalProps {
   initialLat: number;
@@ -23,6 +24,11 @@ export const AdHocScannerModal: React.FC<AdHocScannerModalProps> = ({
 }) => {
   const [lat, setLat] = useState<number>(initialLat);
   const [lon, setLon] = useState<number>(initialLon);
+
+  useEffect(() => {
+    setLat(initialLat);
+    setLon(initialLon);
+  }, [initialLat, initialLon]);
   const [activityType, setActivityType] = useState<ActivityType>("check_dam");
   const [baselineDate, setBaselineDate] = useState<string>("2023-01-15");
   const [hasBaseline, setHasBaseline] = useState<boolean>(true);
@@ -93,6 +99,23 @@ export const AdHocScannerModal: React.FC<AdHocScannerModalProps> = ({
           >
             ✕
           </button>
+        </div>
+
+        {/* 1. Location Search Input */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
+            <span>Search Preferred Location</span>
+            <span className="text-[10px] font-normal text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+              Auto-fetches coordinates
+            </span>
+          </label>
+          <LocationSearchInput
+            onLocationSelect={(loc) => {
+              setLat(loc.lat);
+              setLon(loc.lon);
+            }}
+            placeholder="Type city, village, river (e.g. Pune, Godavari)..."
+          />
         </div>
 
         {/* Input Parameters */}

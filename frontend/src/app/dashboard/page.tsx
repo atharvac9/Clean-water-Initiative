@@ -8,7 +8,9 @@ import { SiteInspector } from "../../components/SiteInspector";
 import { AdHocScannerModal } from "../../components/AdHocScannerModal";
 import { PhotoUploadModal } from "../../components/PhotoUploadModal";
 import { SiteDirectory } from "../../components/SiteDirectory";
+import { LocationScannerPanel } from "../../components/LocationScannerPanel";
 import { FieldUploadView } from "../../components/FieldUploadView";
+import { GeocodedLocation } from "../../components/LocationSearchInput";
 import { fetchSites } from "../../lib/api";
 import { Site, Photo } from "../../lib/types";
 import { Sparkles, Compass, Loader2, Map, Camera, ListFilter, X } from "lucide-react";
@@ -30,12 +32,7 @@ const WatershedMap = dynamic(
 export default function DashboardPage() {
   const [sites, setSites] = useState<Site[]>([]);
   const [selectedSite, setSelectedSite] = useState<Site | null>(null);
-  const [activeSearchedPlace, setActiveSearchedPlace] = useState<{
-    name: string;
-    displayName: string;
-    lat: number;
-    lon: number;
-  } | null>(null);
+  const [activeSearchedPlace, setActiveSearchedPlace] = useState<GeocodedLocation | null>(null);
   const [lowerSectionTab, setLowerSectionTab] = useState<"sites" | "upload">("sites");
 
   // Ad-hoc scanner modal state
@@ -61,9 +58,29 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  const handleSelectCoords = (lat: number, lon: number) => {
+  const handleSelectCoords = async (lat: number, lon: number) => {
     setTargetCoords({ lat, lon });
-    setScannerOpen(true);
+    setSelectedSite(null);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+      );
+      const data = await res.json();
+      const placeName = data.display_name?.split(",")[0] || `Point (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+      setActiveSearchedPlace({
+        name: placeName,
+        displayName: data.display_name || `${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`,
+        lat,
+        lon,
+      });
+    } catch {
+      setActiveSearchedPlace({
+        name: `Coordinates (${lat.toFixed(4)}°, ${lon.toFixed(4)}°)`,
+        displayName: `${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`,
+        lat,
+        lon,
+      });
+    }
   };
 
   const handleSelectAnomaly = () => {
@@ -216,90 +233,26 @@ export default function DashboardPage() {
                   setActiveSearchedPlace(null);
                 }}
                 onSelectCoords={handleSelectCoords}
-                onSearchLocation={(res) => {
-                  setActiveSearchedPlace(res);
-                  setSelectedSite(null);
-                  setTargetCoords({ lat: res.lat, lon: res.lon });
-                }}
                 targetCoords={targetCoords}
               />
             </div>
           </div>
 
-          {/* Site Inspector Column (4 cols on desktop) */}
+          {/* Location Search & Telemetry Scanner Column (4 cols on desktop) */}
           <div className="lg:col-span-4">
-            {selectedSite ? (
-              <SiteInspector
-                site={selectedSite}
-                onUploadPhotoClick={() => setPhotoUploadOpen(true)}
-                onClose={() => setSelectedSite(null)}
-              />
-            ) : activeSearchedPlace ? (
-              <div className="bg-white rounded-2xl p-6 border border-teal-200 text-slate-800 text-xs flex flex-col gap-4 shadow-sm">
-                <div className="flex items-start justify-between border-b border-slate-100 pb-3">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700">
-                      Actively Searched Location
-                    </span>
-                    <h3 className="text-base font-bold text-slate-900 mt-0.5">
-                      {activeSearchedPlace.name}
-                    </h3>
-                    <p className="text-[11px] text-slate-500 truncate max-w-[260px]">
-                      {activeSearchedPlace.displayName}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setActiveSearchedPlace(null)}
-                    className="text-slate-400 hover:text-slate-600 p-1 rounded-md"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1 font-mono text-[11px]">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Latitude:</span>
-                    <span className="font-bold text-slate-900">{activeSearchedPlace.lat.toFixed(4)}°N</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Longitude:</span>
-                    <span className="font-bold text-slate-900">{activeSearchedPlace.lon.toFixed(4)}°E</span>
-                  </div>
-                </div>
-
-                <div className="text-slate-600 text-xs leading-relaxed">
-                  Target coordinates focused on map. Execute telemetry query to analyze vegetation (NDVI) and moisture (NDWI) indices.
-                </div>
-
-                <button
-                  onClick={() => {
-                    setTargetCoords({ lat: activeSearchedPlace.lat, lon: activeSearchedPlace.lon });
-                    setScannerOpen(true);
-                  }}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs transition-all shadow-xs cursor-pointer"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Analyze Telemetry Here</span>
-                </button>
-              </div>
-            ) : (
-              <div className="bg-white rounded-2xl p-6 border border-slate-200 text-center text-slate-500 text-xs flex flex-col items-center justify-center min-h-[360px] gap-3 shadow-xs">
-                <div className="w-12 h-12 rounded-full bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600">
-                  <Compass className="w-6 h-6 animate-pulse" />
-                </div>
-                <div className="flex flex-col gap-1 max-w-xs">
-                  <span className="font-semibold text-slate-900 text-sm">No Location Selected</span>
-                  <span className="text-slate-500">Search any location on the map or click anywhere on the canvas to inspect telemetry.</span>
-                </div>
-                <button
-                  onClick={() => setScannerOpen(true)}
-                  className="mt-2 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-teal-600 text-white text-xs font-medium hover:bg-teal-700 transition-all shadow-xs cursor-pointer"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Scan Coordinates</span>
-                </button>
-              </div>
-            )}
+            <LocationScannerPanel
+              selectedSite={selectedSite}
+              activeLocation={activeSearchedPlace}
+              onLocationSelect={(loc) => {
+                setActiveSearchedPlace(loc);
+                setSelectedSite(null);
+                setTargetCoords({ lat: loc.lat, lon: loc.lon });
+              }}
+              onClearLocation={() => setActiveSearchedPlace(null)}
+              onSiteSaved={handleSiteSaved}
+              onUploadPhotoClick={() => setPhotoUploadOpen(true)}
+              onClearSelectedSite={() => setSelectedSite(null)}
+            />
           </div>
         </section>
 

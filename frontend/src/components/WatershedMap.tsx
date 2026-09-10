@@ -3,15 +3,10 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Site } from "../lib/types";
 import {
-  Search,
-  X,
   Compass,
   MapPin,
-  Eye,
   Layers,
   Sparkles,
-  Loader2,
-  Navigation,
   Crosshair,
   Globe2,
 } from "lucide-react";
@@ -23,18 +18,9 @@ interface WatershedMapProps {
   onSelectSite: (site: Site) => void;
   onSelectCoords: (lat: number, lon: number) => void;
   targetCoords?: { lat: number; lon: number } | null;
-  onSearchLocation?: (result: { name: string; displayName: string; lat: number; lon: number }) => void;
 }
 
 type MapLayerType = "osm" | "satellite";
-
-interface SearchResult {
-  place_id: number | string;
-  display_name: string;
-  lat: number;
-  lon: number;
-  type?: string;
-}
 
 export const WatershedMap: React.FC<WatershedMapProps> = ({
   sites,
@@ -42,7 +28,6 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
   onSelectSite,
   onSelectCoords,
   targetCoords,
-  onSearchLocation,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -52,11 +37,6 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
   const leafletLibRef = useRef<typeof L | null>(null);
 
   const [activeLayer, setActiveLayer] = useState<MapLayerType>("osm");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isLocating, setIsLocating] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Show a temporary toast message
@@ -296,96 +276,6 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
     }
   }, [targetCoords]);
 
-  // Debounced Geocoding Search (Nominatim OpenStreetMap)
-  useEffect(() => {
-    const trimmed = searchQuery.trim();
-    if (!trimmed || trimmed.length < 2) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
-    // Check if input is directly coordinates: "19.05, 74.72" or "19.05 74.72"
-    const coordMatch = trimmed.match(/^([-+]?\d{1,2}(?:\.\d+)?)[,\s]+([-+]?\d{1,3}(?:\.\d+)?)$/);
-    if (coordMatch) {
-      const lat = parseFloat(coordMatch[1]);
-      const lon = parseFloat(coordMatch[2]);
-      if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
-        setSearchResults([
-          {
-            place_id: "direct-coords",
-            display_name: `Coordinates: ${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`,
-            lat,
-            lon,
-            type: "coordinate",
-          },
-        ]);
-        setIsDropdownOpen(true);
-        setIsSearching(false);
-        return;
-      }
-    }
-
-    setIsSearching(true);
-    const timeoutId = setTimeout(async () => {
-      try {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          trimmed
-        )}&limit=6&addressdetails=1`;
-        const res = await fetch(url, {
-          headers: {
-            "Accept-Language": "en",
-          },
-        });
-        if (!res.ok) throw new Error("Search failed");
-        const data = await res.json();
-        const formatted = data.map((item: any) => ({
-          place_id: item.place_id,
-          display_name: item.display_name,
-          lat: parseFloat(item.lat),
-          lon: parseFloat(item.lon),
-          type: item.type || item.class,
-        }));
-        setSearchResults(formatted);
-        setIsDropdownOpen(true);
-      } catch (err) {
-        console.warn("Geocoding search error:", err);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 350);
-
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
-
-  // Fly to location when a search result is clicked
-  const handleSelectLocation = (result: SearchResult) => {
-    const map = mapInstanceRef.current;
-    if (!map) return;
-
-    map.flyTo([result.lat, result.lon], 14, {
-      duration: 1.5,
-    });
-
-    const lat = Number(result.lat.toFixed(4));
-    const lon = Number(result.lon.toFixed(4));
-    const name = result.display_name.split(",")[0];
-
-    if (onSearchLocation) {
-      onSearchLocation({
-        name,
-        displayName: result.display_name,
-        lat,
-        lon,
-      });
-    }
-
-    onSelectCoords(lat, lon);
-    setSearchQuery(name);
-    setIsDropdownOpen(false);
-    showToast(`Jumped to: ${name} (${lat}, ${lon})`);
-  };
-
   // Reset View to sites or overview
   const handleResetView = () => {
     const map = mapInstanceRef.current;
@@ -398,153 +288,46 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
     }
   };
 
-  // HTML5 Browser Geolocation
-  const handleLocateMe = () => {
-    if (!navigator.geolocation) {
-      showToast("Geolocation is not supported by your browser");
-      return;
-    }
-
-    setIsLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setIsLocating(false);
-        const lat = Number(pos.coords.latitude.toFixed(4));
-        const lon = Number(pos.coords.longitude.toFixed(4));
-        const map = mapInstanceRef.current;
-        if (map) {
-          map.flyTo([lat, lon], 14, { duration: 1.5 });
-        }
-        onSelectCoords(lat, lon);
-        showToast(`Located your position: ${lat}°N, ${lon}°E`);
-      },
-      (err) => {
-        setIsLocating(false);
-        showToast(`Geolocation error: ${err.message}`);
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
-  };
-
   return (
-    <div className="relative w-full h-full min-h-[520px] bg-[#070d18] rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col">
-      {/* ── Top Floating Bar: Search Input & Layer Switcher ────────────────── */}
-      <div className="absolute top-4 left-4 right-4 z-[1000] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pointer-events-none">
-        {/* Location Search Bar with Autocomplete */}
-        <div className="relative flex-1 max-w-md pointer-events-auto">
-          <div className="relative flex items-center">
-            <div className="absolute left-3 text-teal-400">
-              {isSearching ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Search className="w-4 h-4" />
-              )}
-            </div>
-            <input
-              type="text"
-              placeholder="Search location, village, river, or lat,lon..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => {
-                if (searchResults.length > 0) setIsDropdownOpen(true);
-              }}
-              className="w-full pl-9 pr-16 py-2 rounded-xl bg-slate-950/90 backdrop-blur-md border border-slate-700/80 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-teal-500 shadow-xl transition-all"
-            />
-            <div className="absolute right-2.5 flex items-center gap-1">
-              {searchQuery && (
-                <button
-                  onClick={() => {
-                    setSearchQuery("");
-                    setSearchResults([]);
-                    setIsDropdownOpen(false);
-                  }}
-                  className="p-1 text-slate-400 hover:text-slate-200 rounded-md"
-                  title="Clear search"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-              <button
-                onClick={handleLocateMe}
-                disabled={isLocating}
-                className="p-1.5 text-teal-400 hover:text-teal-300 hover:bg-slate-800/80 rounded-md transition-all cursor-pointer"
-                title="Locate my position"
-              >
-                {isLocating ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Navigation className="w-3.5 h-3.5" />
-                )}
-              </button>
-            </div>
-          </div>
+    <div className="relative w-full h-full min-h-[520px] bg-slate-100 rounded-2xl border border-slate-200 overflow-hidden shadow-xs flex flex-col">
+      {/* ── Top-Right Map Controls: Street Map, Satellite & Reset ──────────── */}
+      <div className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl p-1 shadow-md pointer-events-auto">
+        <button
+          onClick={() => handleLayerChange("osm")}
+          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+            activeLayer === "osm"
+              ? "bg-teal-600 text-white shadow-xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          }`}
+          title="OpenStreetMap Street View"
+        >
+          <Layers className="w-3.5 h-3.5" />
+          <span className="inline">Street Map</span>
+        </button>
 
-          {/* Autocomplete Dropdown */}
-          {isDropdownOpen && searchResults.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1.5 bg-slate-950/95 backdrop-blur-md border border-slate-700/90 rounded-xl shadow-2xl overflow-hidden z-[1010] max-h-64 overflow-y-auto">
-              {searchResults.map((item, idx) => (
-                <button
-                  key={`${item.place_id}-${idx}`}
-                  onClick={() => handleSelectLocation(item)}
-                  className="w-full text-left px-3.5 py-2.5 hover:bg-slate-800/80 border-b border-slate-800/60 last:border-0 flex items-start gap-2.5 transition-colors cursor-pointer"
-                >
-                  <MapPin className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs font-medium text-slate-100 truncate">
-                      {item.display_name.split(",")[0]}
-                    </div>
-                    <div className="text-[11px] text-slate-400 truncate">
-                      {item.display_name}
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-mono text-slate-500 shrink-0 mt-0.5">
-                    {item.lat.toFixed(3)}, {item.lon.toFixed(3)}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <button
+          onClick={() => handleLayerChange("satellite")}
+          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+            activeLayer === "satellite"
+              ? "bg-teal-600 text-white shadow-xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          }`}
+          title="Satellite Imagery View"
+        >
+          <Globe2 className="w-3.5 h-3.5" />
+          <span className="inline">Satellite</span>
+        </button>
 
-        {/* Layer Switcher & Reset */}
-        <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl p-1 shadow-md pointer-events-auto self-start sm:self-auto">
-          <button
-            onClick={() => handleLayerChange("osm")}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-              activeLayer === "osm"
-                ? "bg-teal-600 text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-            }`}
-            title="OpenStreetMap Street View"
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Street Map</span>
-          </button>
+        <div className="w-px h-4 bg-slate-200 mx-1" />
 
-          <button
-            onClick={() => handleLayerChange("satellite")}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-              activeLayer === "satellite"
-                ? "bg-teal-600 text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-            }`}
-            title="Satellite Imagery View"
-          >
-            <Globe2 className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Satellite</span>
-          </button>
-
-          <div className="w-px h-4 bg-slate-200 mx-1" />
-
-          <button
-            onClick={handleResetView}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all"
-            title="Reset Map View"
-          >
-            <Compass className="w-3.5 h-3.5 text-teal-600" />
-            <span className="hidden lg:inline">Reset</span>
-          </button>
-        </div>
+        <button
+          onClick={handleResetView}
+          className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all cursor-pointer"
+          title="Reset Map View"
+        >
+          <Compass className="w-3.5 h-3.5 text-teal-600" />
+          <span>Reset</span>
+        </button>
       </div>
 
       {/* ── Toast Notification ────────────────────────────────────────────── */}
