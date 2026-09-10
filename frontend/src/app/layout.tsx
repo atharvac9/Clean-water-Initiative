@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MeerDrushti (नीरदृष्टी) — Watershed Intelligence Dashboard",
+  title: "NeerDrishti (नीरदृष्टी) — Watershed Intelligence Dashboard",
   description:
-    "Autonomous satellite telemetry & multi-spectral monitoring platform combining Copernicus Sentinel-2 NDVI/NDWI indices with OpenCLIP zero-shot field photo verification.",
+    "Multi-spectral watershed monitoring and telemetry platform combining vegetation and moisture indices with OpenCLIP zero-shot field photo verification.",
   keywords: [
-    "MeerDrushti",
-    "watershed health",
-    "satellite telemetry",
-    "Sentinel-2",
+    "NeerDrishti",
+    "watershed intelligence",
+    "hydrology",
     "NDVI",
     "NDWI",
     "open-clip",

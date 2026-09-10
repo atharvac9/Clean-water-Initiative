@@ -21,7 +21,7 @@ const WatershedMap = dynamic(
     loading: () => (
       <div className="w-full h-full min-h-[520px] rounded-2xl border border-slate-200 bg-white flex flex-col items-center justify-center text-slate-500 text-xs gap-3 shadow-xs">
         <Loader2 className="w-6 h-6 text-teal-600 animate-spin" />
-        <span className="font-medium text-slate-700">Initializing High-Resolution Satellite Map Engine...</span>
+        <span className="font-medium text-slate-700">Initializing High-Resolution Map Engine...</span>
       </div>
     ),
   }
@@ -69,8 +69,7 @@ export default function DashboardPage() {
     );
     if (anomalySite) {
       setSelectedSite(anomalySite);
-      // scroll to map smoothly
-      window.scrollTo({ top: 120, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -108,80 +107,78 @@ export default function DashboardPage() {
       <Navbar onScanClick={() => setScannerOpen(true)} />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
-        {/* Dashboard Header & Stats Overview */}
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
-                <span>Watershed Intelligence Dashboard</span>
-              </h1>
-              <p className="text-xs text-slate-500 mt-0.5">
-                MeerDrushti • Copernicus Sentinel-2 Multi-Spectral Reflectance & Ground-Truth OpenCLIP Auditing
-              </p>
-            </div>
-
-            {/* Quick Actions / Active Sites Pills */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {sites.length > 0 ? (
-                <>
-                  <span className="text-[11px] text-slate-500 font-mono mr-1">Active Sites ({sites.length}):</span>
-                  {sites.slice(0, 8).map((s) => {
-                    const label = s.site_code || s.id.substring(0, 6);
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => {
-                          setSelectedSite(s);
-                          window.scrollTo({ top: 120, behavior: "smooth" });
-                        }}
-                        className={`text-[11px] font-mono px-2.5 py-1 rounded-md border transition-all cursor-pointer ${
-                          selectedSite?.id === s.id
-                            ? "bg-teal-50 border-teal-500 text-teal-800 font-bold shadow-xs"
-                            : s.latest_analysis?.overall_status === "anomaly"
-                            ? "bg-red-50 border-red-300 text-red-700 hover:bg-red-100"
-                            : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs"
-                        }`}
-                      >
-                        {label} {s.latest_analysis?.overall_status === "anomaly" ? "⚠" : ""}
-                      </button>
-                    );
-                  })}
-                </>
-              ) : (
-                <button
-                  onClick={() => setScannerOpen(true)}
-                  className="flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition-all cursor-pointer shadow-xs"
-                >
-                  <Sparkles className="w-3 h-3" />
-                  <span>Scan New Coordinates</span>
-                </button>
-              )}
-            </div>
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col gap-6">
+        {/* Compact Title Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+              <span>NeerDrishti Dashboard</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+                नीरदृष्टी
+              </span>
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Watershed Environmental Telemetry & Ground-Truth Verification
+            </p>
           </div>
 
-          {/* Stats Bar */}
-          <StatsBar sites={sites} onSelectAnomaly={handleSelectAnomaly} />
+          {/* Quick Actions / Active Sites Pills */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {sites.length > 0 ? (
+              <>
+                <span className="text-[11px] text-slate-500 font-mono mr-1">Active Sites ({sites.length}):</span>
+                {sites.slice(0, 8).map((s) => {
+                  const label = s.site_code || s.id.substring(0, 6);
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => {
+                        setSelectedSite(s);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className={`text-[11px] font-mono px-2.5 py-1 rounded-md border transition-all cursor-pointer ${
+                        selectedSite?.id === s.id
+                          ? "bg-teal-50 border-teal-500 text-teal-800 font-bold shadow-xs"
+                          : s.latest_analysis?.overall_status === "anomaly"
+                          ? "bg-red-50 border-red-300 text-red-700 hover:bg-red-100"
+                          : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs"
+                      }`}
+                    >
+                      {label} {s.latest_analysis?.overall_status === "anomaly" ? "⚠" : ""}
+                    </button>
+                  );
+                })}
+              </>
+            ) : (
+              <button
+                onClick={() => setScannerOpen(true)}
+                className="flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition-all cursor-pointer shadow-xs"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>Scan New Coordinates</span>
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Top Section: Interactive Map + Site Inspector Side-by-Side */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* ── MAP AT THE TOP: Interactive Geospatial Map + Site Inspector ─────── */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Map Column (8 cols on desktop) */}
-          <div className="lg:col-span-8 flex flex-col gap-3">
+          <div className="lg:col-span-8 flex flex-col gap-2.5">
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2 text-xs text-slate-700 font-semibold">
                 <Map className="w-4 h-4 text-teal-600" />
-                <span>Geospatial Map & Telemetry Radar</span>
+                <span>Geospatial Watershed Map & Telemetry</span>
               </div>
 
               <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-500">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Sentinel-2 L2A Harmonized Active</span>
+                <span>Telemetry Stream Active</span>
               </div>
             </div>
 
             {/* Map Canvas */}
-            <div className="h-[540px]">
+            <div className="h-[520px]">
               <WatershedMap
                 sites={sites}
                 selectedSite={selectedSite}
@@ -208,7 +205,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex flex-col gap-1 max-w-xs">
                   <span className="font-semibold text-slate-900 text-sm">No Site Selected</span>
-                  <span className="text-slate-500">Click anywhere on the map or search for any location to inspect coordinates and satellite telemetry.</span>
+                  <span className="text-slate-500">Click anywhere on the map or search for any location to inspect coordinates and telemetry.</span>
                 </div>
                 <button
                   onClick={() => setScannerOpen(true)}
@@ -220,10 +217,15 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
-        </div>
+        </section>
 
-        {/* Lower Section: Sites Option Placed Directly Below The Maps */}
-        <section className="flex flex-col gap-4 mt-2">
+        {/* ── STATS BAR: Placed directly below the map ────────────────────────── */}
+        <section>
+          <StatsBar sites={sites} onSelectAnomaly={handleSelectAnomaly} />
+        </section>
+
+        {/* ── SITES DIRECTORY & VERIFICATION: Directly below the stats ────────── */}
+        <section className="flex flex-col gap-4">
           {/* Sub-header for Lower Section */}
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center gap-3">
@@ -267,7 +269,7 @@ export default function DashboardPage() {
               sites={sites}
               onSelectSite={(site) => {
                 setSelectedSite(site);
-                window.scrollTo({ top: 120, behavior: "smooth" });
+                window.scrollTo({ top: 0, behavior: "smooth" });
               }}
             />
           ) : (

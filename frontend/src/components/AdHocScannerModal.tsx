@@ -83,8 +83,8 @@ export const AdHocScannerModal: React.FC<AdHocScannerModalProps> = ({
               <Satellite className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">Sentinel-2 On-Demand Scanner</h2>
-              <p className="text-xs text-slate-500">Query Copernicus surface reflectance for any global coordinates</p>
+              <h2 className="text-base font-bold text-slate-900">Watershed Telemetry Scanner</h2>
+              <p className="text-xs text-slate-500">Compute vegetation and moisture indices for target coordinates</p>
             </div>
           </div>
           <button
@@ -202,12 +202,12 @@ export const AdHocScannerModal: React.FC<AdHocScannerModalProps> = ({
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Querying Sentinel-2 & Computing Indices...</span>
+              <span>Computing Watershed Telemetry Indices...</span>
             </>
           ) : (
             <>
               <Sparkles className="w-4 h-4" />
-              <span>Execute Satellite Telemetry Query</span>
+              <span>Execute Telemetry Query</span>
             </>
           )}
         </button>
@@ -217,7 +217,7 @@ export const AdHocScannerModal: React.FC<AdHocScannerModalProps> = ({
           <div className="bg-slate-50 rounded-xl p-4 border border-teal-200 flex flex-col gap-4">
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <span className="text-xs font-bold text-teal-800 uppercase tracking-wider">Analysis Result</span>
-              <span className="text-xs font-mono text-slate-500">{result.satellite_source}</span>
+              <span className="text-xs font-mono text-slate-500">Spectral Telemetry Engine</span>
             </div>
 
             <HealthGauge

@@ -34,8 +34,8 @@ const teamMembers: TeamMember[] = [
     area: "Geospatial Systems & Remote Sensing",
     avatarBg: "bg-teal-600 text-white",
     initials: "RK",
-    bio: "Specializes in earth observation satellite pipelines and spatial data infrastructure. Leads the architecture integrating Copernicus Sentinel-2 L2A telemetry with real-time browser GIS engines.",
-    skills: ["Copernicus Sentinel-2", "Leaflet GIS", "FastAPI", "Next.js", "Spatial Telemetry"],
+    bio: "Specializes in earth observation pipelines and spatial data infrastructure. Leads the architecture integrating multi-spectral telemetry with real-time browser GIS engines.",
+    skills: ["Multi-Spectral GIS", "Leaflet GIS", "FastAPI", "Next.js", "Spatial Telemetry"],
   },
   {
     name: "Dr. Ananya Deshmukh",
@@ -175,7 +175,7 @@ export default function TeamPage() {
               </div>
               <h3 className="text-sm font-bold text-slate-900">Open Public Telemetry</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                We rely strictly on publicly verifiable Copernicus Sentinel-2 L2A imagery, ensuring any independent third party can verify calculations.
+                We rely strictly on publicly verifiable open telemetry data, ensuring any independent third party can verify calculations.
               </p>
             </div>
 
@@ -185,7 +185,7 @@ export default function TeamPage() {
               </div>
               <h3 className="text-sm font-bold text-slate-900">Zero-Trust Cross-Auditing</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Spaceborne spectral vegetation and water index responses must corroborate on-ground photographic evidence to award certified verification.
+                Spectral vegetation and water index responses must corroborate on-ground photographic evidence to award certified verification.
               </p>
             </div>
 
@@ -221,8 +221,8 @@ export default function TeamPage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-white py-8 px-4 text-center text-xs text-slate-500">
-        <p>© 2026 MeerDrushti (नीरदृष्टी) • Watershed Intelligence Platform</p>
-        <p className="mt-1">Powered by Copernicus Sentinel-2 Multi-Spectral Data & OpenCLIP Vision Models</p>
+        <p>© 2026 NeerDrishti (नीरदृष्टी) • Watershed Intelligence Platform</p>
+        <p className="mt-1">Powered by Multi-Spectral Telemetry & OpenCLIP Vision Models</p>
       </footer>
     </div>
   );

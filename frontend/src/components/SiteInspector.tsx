@@ -108,7 +108,7 @@ export const SiteInspector: React.FC<SiteInspectorProps> = ({
           </div>
         )}
 
-        {/* Satellite Telemetry Details */}
+        {/* Telemetry Details */}
         {analysis && (
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
@@ -143,11 +143,11 @@ export const SiteInspector: React.FC<SiteInspectorProps> = ({
             <div className="text-xs font-semibold text-slate-700 flex items-center justify-between">
               <span>Cross-Validation Matrix</span>
               <span className="text-[10px] font-mono text-slate-500">
-                Source: {analysis.satellite_source || "Sentinel-2"}
+                Source: Multispectral Sensors
               </span>
             </div>
             <div className="flex items-center justify-between py-1 border-t border-slate-200">
-              <span className="text-slate-600">Satellite Agreement</span>
+              <span className="text-slate-600">Spectral Telemetry Agreement</span>
               <span
                 className={`font-mono font-semibold ${
                   analysis.satellite_agreement ? "text-emerald-700" : "text-red-600"

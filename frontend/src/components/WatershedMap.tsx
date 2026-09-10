@@ -25,7 +25,7 @@ interface WatershedMapProps {
   targetCoords?: { lat: number; lon: number } | null;
 }
 
-type MapLayerType = "satellite" | "dark" | "osm";
+type MapLayerType = "osm" | "light" | "dark";
 
 interface SearchResult {
   place_id: number | string;
@@ -49,7 +49,7 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
   const targetMarkerRef = useRef<L.Marker | null>(null);
   const leafletLibRef = useRef<typeof L | null>(null);
 
-  const [activeLayer, setActiveLayer] = useState<MapLayerType>("satellite");
+  const [activeLayer, setActiveLayer] = useState<MapLayerType>("osm");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -63,14 +63,15 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
     setTimeout(() => setToastMessage(null), 4000);
   }, []);
 
-  // Tile layer URLs
+  // Tile layer URLs - clean street, light, and dark cartography (no satellite imagery)
   const getTileLayer = useCallback((layer: MapLayerType, L_lib: typeof L) => {
-    if (layer === "satellite") {
+    if (layer === "light") {
       return L_lib.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
         {
           maxZoom: 19,
-          attribution: "Esri World Imagery",
+          subdomains: "abcd",
+          attribution: "&copy; CartoDB Positron",
         }
       );
     } else if (layer === "dark") {
@@ -125,8 +126,8 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
         })
         .addTo(map);
 
-      // Add default tile layer
-      const baseTile = getTileLayer("satellite", L);
+      // Add default tile layer (OpenStreetMap / clean cartography)
+      const baseTile = getTileLayer("osm", L);
       baseTile.addTo(map);
       tileLayerRef.current = baseTile;
 
@@ -290,7 +291,7 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
               ${targetCoords.lat.toFixed(4)}°N, ${targetCoords.lon.toFixed(4)}°E
             </div>
             <div class="text-[10px] text-slate-400 mt-1">
-              Ready for Sentinel-2 surface reflectance query
+              Ready for watershed telemetry analysis
             </div>
           </div>
         `);
@@ -501,54 +502,54 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
         </div>
 
         {/* Layer Switcher & Reset */}
-        <div className="flex items-center gap-1.5 bg-slate-950/90 backdrop-blur-md border border-slate-800 rounded-xl p-1 shadow-xl pointer-events-auto self-start sm:self-auto">
+        <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl p-1 shadow-md pointer-events-auto self-start sm:self-auto">
           <button
-            onClick={() => handleLayerChange("satellite")}
+            onClick={() => handleLayerChange("osm")}
             className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              activeLayer === "satellite"
-                ? "bg-teal-600 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+              activeLayer === "osm"
+                ? "bg-teal-600 text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             }`}
-            title="High-Resolution Satellite Imagery"
+            title="OpenStreetMap Cartography"
           >
-            <Satellite className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Satellite</span>
+            <Layers className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">Street Map</span>
+          </button>
+
+          <button
+            onClick={() => handleLayerChange("light")}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeLayer === "light"
+                ? "bg-teal-600 text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            }`}
+            title="Clean Light Cartography"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">Light</span>
           </button>
 
           <button
             onClick={() => handleLayerChange("dark")}
             className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
               activeLayer === "dark"
-                ? "bg-teal-600 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-teal-600 text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             }`}
             title="Dark Cartography"
           >
-            <Eye className="w-3.5 h-3.5" />
+            <Compass className="w-3.5 h-3.5" />
             <span className="hidden md:inline">Dark</span>
           </button>
 
-          <button
-            onClick={() => handleLayerChange("osm")}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              activeLayer === "osm"
-                ? "bg-teal-600 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-            title="Terrain / OpenStreetMap"
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Terrain</span>
-          </button>
-
-          <div className="w-px h-4 bg-slate-700 mx-1" />
+          <div className="w-px h-4 bg-slate-200 mx-1" />
 
           <button
             onClick={handleResetView}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800 transition-all"
+            className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all"
             title="Reset Map View"
           >
-            <Compass className="w-3.5 h-3.5 text-teal-400" />
+            <Compass className="w-3.5 h-3.5 text-teal-600" />
             <span className="hidden lg:inline">Reset</span>
           </button>
         </div>

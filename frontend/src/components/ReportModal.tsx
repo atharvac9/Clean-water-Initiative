@@ -85,7 +85,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               </div>
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-slate-900">
-                  MeerDrushti (नीरदृष्टी)
+                  NeerDrishti (नीरदृष्टी)
                 </h1>
                 <p className="text-xs font-medium text-teal-700">
                   Watershed Intelligence & Satellite Compliance Verification
@@ -160,7 +160,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
           <div className="flex flex-col gap-2.5">
             <h2 className="text-xs font-bold uppercase tracking-wider text-teal-800 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>2. Satellite Spectral Telemetry (Sentinel-2 L2A)</span>
+              <span>2. Multi-Spectral Telemetry (NDVI / NDWI)</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -285,8 +285,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({
           {/* Official Verification Seal & Footer */}
           <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-500">
             <div>
-              <span className="font-semibold text-slate-700">MeerDrushti (नीरदृष्टी) Verification Authority</span>
-              <div>Powered by Copernicus Sentinel-2 L2A & OpenCLIP Zero-Shot ML</div>
+              <span className="font-semibold text-slate-700">NeerDrishti (नीरदृष्टी) Verification Authority</span>
+              <div>Powered by Multi-Spectral Telemetry & OpenCLIP Zero-Shot ML</div>
             </div>
             <div className="font-mono text-right text-[10px]">
               SHA-256 Validated • Authenticated Dashboard Output

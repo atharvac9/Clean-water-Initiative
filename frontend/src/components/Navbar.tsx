@@ -29,12 +29,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onScanClick, activeTab, setActiv
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-lg text-slate-900 tracking-tight">MeerDrushti</span>
+              <span className="font-bold text-lg text-slate-900 tracking-tight">NeerDrishti</span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200 tracking-wider">
                 नीरदृष्टी
               </span>
             </div>
-            <p className="text-xs text-slate-500 hidden sm:block">Watershed Intelligence & Satellite Telemetry</p>
+            <p className="text-xs text-slate-500 hidden sm:block">Watershed Intelligence & Telemetry Platform</p>
           </div>
         </Link>
 

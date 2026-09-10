@@ -4,7 +4,6 @@ import React from "react";
 import Link from "next/link";
 import { Navbar } from "../components/Navbar";
 import {
-  Satellite,
   LayoutDashboard,
   Camera,
   ShieldCheck,
@@ -13,6 +12,8 @@ import {
   CheckCircle2,
   Droplets,
   Users,
+  Activity,
+  MapPin,
 } from "lucide-react";
 
 export default function HomePage() {
@@ -28,16 +29,16 @@ export default function HomePage() {
             {/* Left Hero Text (7 cols) */}
             <div className="lg:col-span-7 flex flex-col items-start text-left">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-semibold mb-6 shadow-xs">
-                <Satellite className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
-                <span>MeerDrushti नीरदृष्टी • Copernicus Sentinel-2 & OpenCLIP AI</span>
+                <Droplets className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
+                <span>NeerDrishti नीरदृष्टी • AI & Multi-Spectral Telemetry</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.12]">
-                Autonomous Satellite Auditing for <span className="text-teal-600">Watershed Security</span>
+                Autonomous Telemetry Auditing for <span className="text-teal-600">Watershed Security</span>
               </h1>
 
               <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
-                Eliminate ghost conservation projects and unverifiable claims. MeerDrushti combines spaceborne multi-spectral telemetry (NDVI & NDWI) with zero-shot on-ground AI to verify check dams, farm ponds, and afforestation in real time.
+                Eliminate ghost conservation projects and unverifiable claims. NeerDrishti combines multi-spectral telemetry (NDVI & NDWI) with zero-shot on-ground AI to verify check dams, farm ponds, and afforestation in real time.
               </p>
 
               {/* Action Buttons */}
@@ -64,7 +65,7 @@ export default function HomePage() {
               <div className="mt-10 flex items-center gap-6 pt-6 border-t border-slate-100 text-xs font-medium text-slate-500">
                 <div className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>10m Spatial Resolution</span>
+                  <span>Vegetation & Water Indices</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -84,7 +85,7 @@ export default function HomePage() {
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-xs font-bold font-mono text-slate-900">MEER-SITE-001</span>
+                    <span className="text-xs font-bold font-mono text-slate-900">NEER-SITE-001</span>
                   </div>
                   <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-semibold">
                     Verified Healthy
@@ -107,13 +108,13 @@ export default function HomePage() {
                   <div className="bg-slate-50 rounded-xl p-3 border border-slate-200">
                     <div className="text-[10px] font-semibold text-slate-500 uppercase">NDVI Delta (Vegetation)</div>
                     <div className="text-base font-bold font-mono text-emerald-600 mt-1">+0.142</div>
-                    <div className="text-[10px] text-slate-400">Copernicus L2A Surface</div>
+                    <div className="text-[10px] text-slate-400">Canopy Health Growth</div>
                   </div>
 
                   <div className="bg-slate-50 rounded-xl p-3 border border-slate-200">
                     <div className="text-[10px] font-semibold text-slate-500 uppercase">NDWI Delta (Waterbody)</div>
                     <div className="text-base font-bold font-mono text-sky-600 mt-1">+0.208</div>
-                    <div className="text-[10px] text-slate-400">Retention Confirmed</div>
+                    <div className="text-[10px] text-slate-400">Moisture Retention Confirmed</div>
                   </div>
                 </div>
 
@@ -154,10 +155,10 @@ export default function HomePage() {
             Full-Spectrum Verification Engine
           </h2>
           <p className="mt-2 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            How Space & Ground-Truth Intelligence Converge
+            How Telemetry & Ground-Truth Intelligence Converge
           </p>
           <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed">
-            Standard audits rely on self-reported spreadsheets or easily fabricated photographs. MeerDrushti bridges the gap using objective, immutable physical measurements.
+            Standard audits rely on self-reported spreadsheets or easily fabricated photographs. NeerDrishti bridges the gap using objective, immutable physical measurements.
           </p>
         </div>
 
@@ -166,15 +167,15 @@ export default function HomePage() {
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
             <div>
               <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600 mb-4">
-                <Satellite className="w-6 h-6" />
+                <Activity className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">Sentinel-2 Multi-Spectral</h3>
+              <h3 className="text-base font-bold text-slate-900">Multi-Spectral Telemetry</h3>
               <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Direct queries to Copernicus 10-meter surface reflectance bands (B03, B04, B08, B11) for true biochemical index computations.
+                Automated surface reflectance queries computing precise NDVI vegetation and NDWI moisture indices across seasons.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-mono text-teal-700 font-semibold">
-              NDVI • NDWI • EVI
+              NDVI • NDWI • Moisture Delta
             </div>
           </div>
 
@@ -202,7 +203,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-base font-bold text-slate-900">EXIF Sensor Forensics</h3>
               <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Validates camera hardware tags, exposure timestamps, and GPS coordinates to stop reused web imagery or fraudulent geotag tampering.
+                Validates camera hardware tags, exposure timestamps, and GPS coordinates to stop reused web photos or fraudulent geotag tampering.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-mono text-emerald-700 font-semibold">
@@ -218,7 +219,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-base font-bold text-slate-900">Clean Single-Page PDF</h3>
               <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Exports official verification certificates containing strictly the site coordinates, satellite telemetry, and audit checklist without web chrome.
+                Exports official verification certificates containing strictly the site coordinates, telemetry data, and audit checklist without web chrome.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-mono text-indigo-700 font-semibold">
@@ -248,7 +249,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-base font-bold text-slate-900">Search & Target Basin</h3>
               <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Use the real-time Nominatim geocoder or pan the Leaflet satellite map to target any village, stream, or watershed parcel worldwide.
+                Use the real-time Nominatim geocoder or pan the interactive watershed map to target any village, stream, or watershed parcel worldwide.
               </p>
             </div>
 
@@ -259,7 +260,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-base font-bold text-slate-900">Execute Spectral Query</h3>
               <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Our server queries Copernicus Sentinel-2 surface reflectance, computing seasonal baseline and post-intervention vegetation and water retention deltas.
+                Our server computes spectral surface indices, evaluating seasonal baseline and post-intervention vegetation and water retention deltas.
               </p>
             </div>
 
@@ -323,7 +324,7 @@ export default function HomePage() {
           <div className="flex flex-col gap-2 text-center sm:text-left">
             <h3 className="text-2xl sm:text-3xl font-extrabold">Ready to audit watershed projects?</h3>
             <p className="text-xs sm:text-sm text-teal-100 max-w-xl">
-              Access the interactive geospatial map, run on-demand Sentinel-2 queries, and generate clean PDF verification certificates now.
+              Access the interactive geospatial map, run on-demand telemetry queries, and generate clean PDF verification certificates now.
             </p>
           </div>
           <Link
@@ -342,10 +343,10 @@ export default function HomePage() {
           <div>
             <div className="font-bold text-slate-900 flex items-center gap-2 justify-center sm:justify-start">
               <Droplets className="w-4 h-4 text-teal-600" />
-              <span>MeerDrushti (नीरदृष्टी) • Watershed Intelligence</span>
+              <span>NeerDrishti (नीरदृष्टी) • Watershed Intelligence</span>
             </div>
             <p className="text-[11px] text-slate-500 mt-1">
-              Copernicus Sentinel-2 • OpenCLIP AI • OpenStreetMap Nominatim
+              OpenStreetMap • OpenCLIP AI • Multi-Spectral Telemetry
             </p>
           </div>
 
