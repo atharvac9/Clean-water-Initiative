@@ -8,30 +8,32 @@ env/
 venv/
 .venv/
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.pytest_cache/
 
-# Caches & Local Databases
+# Databases & local sqlite
+*.db
+*.sqlite
+*.sqlite3
 cache/*
-!cache/.gitkeep
-db/*.db
 temp/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+npm-debug.log*
 
 # Environment & IDE
 .env
+.env.local
 .idea/
 .vscode/
 *.swp
 *.swo
+.DS_Store

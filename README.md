@@ -1,181 +1,155 @@
-# Clean Water Initiative
+# Clean Water Initiative — Production-Grade MVP
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](https://streamlit.io/)
-[![Three.js](https://img.shields.io/badge/3D%20Globe-Three.js%20%2F%20Globe.gl-black.svg)](https://globe.gl/)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
+[![Next.js 16](https://img.shields.io/badge/Frontend-Next.js%2016-black.svg)](https://nextjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS%20v4-38bdf8.svg)](https://tailwindcss.com/)
 [![Google Earth Engine](https://img.shields.io/badge/Satellite-Google%20Earth%20Engine-34A853.svg)](https://earthengine.google.com/)
-[![OpenAI CLIP](https://img.shields.io/badge/Vision%20AI-CLIP%20Zero--Shot-74aa9c.svg)](https://github.com/mlfoundations/open_clip)
-[![Hackathon](https://img.shields.io/badge/Smart%20India%20Hackathon-2026-orange.svg)]()
+[![OpenAI CLIP](https://img.shields.io/badge/Vision%20AI-OpenCLIP%20Zero--Shot-74aa9c.svg)](https://github.com/mlfoundations/open_clip)
+[![CI](https://github.com/atharvac9/Clean-water-Initiative/actions/workflows/ci.yml/badge.svg)](https://github.com/atharvac9/Clean-water-Initiative/actions)
 
-> **Field Evidence × Satellite Intelligence** — Ground Truth Verification and Condition Monitoring Layer for Watershed Interventions.
-
-[![Deploy to Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/deploy?repository=atharvac9/Clean-water-Initiative&branch=main&mainModule=app.py)
+> **Field Evidence × Satellite Remote Sensing** — Production-grade ground-truth verification and condition monitoring platform for watershed interventions.
 
 ---
 
-## 📌 Problem Statement
+## 📌 Overview
 
-Field workers routinely upload geo-tagged photos of watershed interventions (such as check dams, farm ponds, and hill plantations). However, administrative authorities have no automated mechanism to cross-reference what the photo shows against what satellite remote sensing reveals at that exact coordinate over time. 
+Clean Water Initiative bridges spaceborne remote sensing (**Copernicus Sentinel-2 L2A Surface Reflectance**) with field-level computer vision (**OpenCLIP Zero-Shot Visual Classification**) and **EXIF metadata forensics**.
 
-This platform solves this challenge by fusing **field photos** with **Sentinel-2 multi-spectral satellite indices** (NDVI and NDWI). It validates interventions, flags false or degraded claims as **anomalies**, and calculates a 0–100 **Watershed Health Index**.
-
----
-
-## 🌟 Demo & Walkthrough
-
-Check out the full [**Technical Architecture & Approach Specification**](docs/TECHNICAL_APPROACH.md), [**Demo Walkthrough & Results Guide**](docs/DEMO_WALKTHROUGH.md), and [**Implementation Plan**](docs/IMPLEMENTATION_PLAN.md).
-
-### 3D Interactive WebGL Sensor Globe
-![Main Dashboard](docs/assets/dashboard_main.png)
-
-### Automated Anomaly Detection (Site S06 - Farm Pond Mismatch)
-![S06 Anomaly Flagged](docs/assets/site_detail_s06.png)
+Instead of relying on static mock data, this rebuilt architecture provides:
+1. **Coordinate-Agnostic GEE Engine**: Headless authentication using Google Earth Engine service account credentials (`ee.ServiceAccountCredentials`). Analyzes **any** point on the globe dynamically.
+2. **Real Visual AI Classifier**: Runs zero-shot inference with OpenCLIP `ViT-B-32` over actual field uploads, reporting class distribution and model confidence.
+3. **EXIF Metadata Forensics**: Audits image GPS tags, camera sensors, and capture timestamps to prevent fraudulent verification submissions.
+4. **Cross-Validation Rule Engine**: Compares claimed interventions against physical vegetation (NDVI) and moisture (NDWI) delta signatures. Flags anomalies (e.g. dried reservoirs or vegetation loss).
+5. **Next.js Reactive Dashboard**: Modern dark-mode interface featuring an **Orthographic 3D Globe**, a **Tactical 2D Watershed Map**, an **Ad-Hoc Coordinate Scanner**, and **WeasyPrint PDF Report Exports**.
 
 ---
 
-## ✨ Key Features
-
-- **🌐 3D Interactive Sensor Globe** — Custom Streamlit component built on WebGL, Three.js, and Globe.gl with animated radar pulse rings, glowing atmosphere, and two-way Streamlit state synchronization.
-- **🗺️ Dual Map Perspectives** — Switch on-the-fly between the 3D Interactive Globe and 2D High-Resolution Sentinel-2 multi-spectral Folium map.
-- **🛰️ Multi-Spectral Sentinel-2 Analysis** — Pulls temporal surface reflectance bands to compute NDVI (vegetation health) and NDWI (moisture/water accumulation) trends.
-- **👁️ Zero-Shot AI Photo Classification** — Uses OpenAI CLIP (ViT-B/32) to categorize field photos into 5 intervention types without task-specific training data.
-- **⚖️ Cross-Validation Rule Engine** — Detects anomalies when claimed interventions contradict physical satellite trends.
-- **📈 Watershed Health Scoring** — Standardized 0–100 score per site based on vegetation, water presence, multi-modal agreement, and model confidence.
-- **🎛️ Before/After Satellite Slider** — Compare baseline (T0) vs current (T_now) imagery using an interactive slider.
-- **⚡ Offline-Resilient & Fast** — Built-in 10-second fail-fast timeout and local caching ensures instant demo execution even when offline.
-
----
-
-## 🏗️ Multi-Modal Fusion Architecture
-
-```
-┌─────────────────────────┐          ┌───────────────────────────┐
-│ Ground Field Evidence   │          │ Spaceborne Remote Sensing │
-│ • Geo-tagged Photos     │          │ • Sentinel-2 Harmonized   │
-│ • Coordinates (lat,lon) │          │ • Temporal Query (T0/Tnow)│
-└────────────┬────────────┘          └─────────────┬─────────────┘
-             │                                     │
-             ▼                                     ▼
-┌─────────────────────────┐          ┌───────────────────────────┐
-│ OpenAI CLIP Classifier  │          │ GEE Multispectral Engine  │
-│ (ViT-B/32 Zero-Shot)    │          │ (NDVI & NDWI Deltas)      │
-└────────────┬────────────┘          └─────────────┬─────────────┘
-             │                                     │
-             └──────────────────┬──────────────────┘
-                                │
-                                ▼
-                   ┌─────────────────────────┐
-                   │ Cross-Validation Engine │
-                   │ • Rule Consistency     │
-                   │ • Discrepancy Detection │
-                   └────────────┬────────────┘
-                                │
-                                ▼
-                   ┌─────────────────────────┐
-                   │  Health Score & Flags   │
-                   │  (0 - 100 Index Score)  │
-                   └────────────┬────────────┘
-                                │
-                                ▼
-                   ┌─────────────────────────┐
-                   │  Interactive Dashboard  │
-                   │  • 3D WebGL Globe       │
-                   │  • 2D Multispectral Map │
-                   │  • Slide-in Inspector   │
-                   └─────────────────────────┘
-```
-
----
-
-## 🚀 Quick Start (< 5 minutes)
-
-### 1. Clone & Install Dependencies
-
-```bash
-git clone https://github.com/atharvac9/Clean-water-Initiative.git
-cd Clean-water-Initiative
-pip install -r requirements.txt
-```
-
-### 2. (Optional) Authenticate Google Earth Engine
-
-```bash
-earthengine authenticate
-```
-*Note: If GEE is not authenticated or offline, the app automatically switches to realistic offline mock data so you can test and demo instantly.*
-
-### 3. Launch the Application
-
-```bash
-streamlit run app.py
-```
-
-Open your browser to `http://localhost:8501`.
-
----
-
-## 📁 Project Structure
+## 🏗️ Architecture
 
 ```
 Clean-water-Initiative/
-├── app.py                      # Main Streamlit application
-├── config.py                   # Centralized configuration & thresholds
-├── requirements.txt            # Python dependencies
-├── test_pipeline.py            # End-to-end headless pipeline validation test
-├── globe_selector/             # 3D WebGL Globe Streamlit Custom Component
-│   ├── __init__.py             # Python wrapper & component declaration
-│   └── frontend/               # WebGL / Globe.gl / Three.js frontend
-│       └── index.html          # Interactive globe with HUD & controls
-├── data/
-│   ├── sites.csv               # Ground monitoring sites metadata
-│   └── photos/                 # Geo-tagged field photos
-├── docs/                       # Project Documentation & Assets
-│   ├── DEMO_WALKTHROUGH.md     # Detailed verification walkthrough
-│   ├── IMPLEMENTATION_PLAN.md  # Architectural design document
-│   └── assets/                 # Screenshots & demo recordings
-├── src/
-│   ├── gee_client.py           # Google Earth Engine client & band indices
-│   ├── classifier.py           # CLIP zero-shot vision classifier
-│   ├── cross_validator.py      # Photo ↔ Satellite consistency validator
-│   ├── health_score.py         # Multi-factor health scoring algorithm
-│   └── map_builder.py          # 2D Folium multi-spectral map builder
-└── utils/
-    └── db_utils.py             # SQLite database persistence layer
+├── backend/                  # FastAPI Application
+│   ├── app/
+│   │   ├── main.py           # Lifespan, CORS, seeds
+│   │   ├── config.py         # Pydantic Settings & env configuration
+│   │   ├── database.py       # SQLAlchemy async (PostgreSQL / SQLite async)
+│   │   ├── models/           # Site, AnalysisResult, Photo, User ORM models
+│   │   ├── schemas/          # Pydantic request/response schemas
+│   │   ├── routers/          # /api/sites, /api/analysis, /api/photos, /api/reports, /api/health
+│   │   ├── services/
+│   │   │   ├── gee_service.py     # Real Sentinel-2 NDVI/NDWI queries via GEE
+│   │   │   ├── classifier.py      # Real OpenCLIP inference
+│   │   │   ├── cross_validator.py # Agreement & anomaly detection rules
+│   │   │   ├── health_score.py    # Standardized 0-100 health scoring
+│   │   │   ├── exif_checker.py    # Camera & GPS EXIF validation
+│   │   │   └── storage.py         # S3 / Supabase Storage abstraction
+│   │   └── utils/
+│   ├── tests/                # 64 real pytest tests with strict assertions
+│   ├── Dockerfile
+│   └── requirements.txt
+│
+├── frontend/                 # Next.js 16 App Router Frontend
+│   ├── src/
+│   │   ├── app/              # Root layout, globals.css, Dashboard page
+│   │   ├── components/
+│   │   │   ├── Navbar.tsx           # Live telemetry status & navigation
+│   │   │   ├── StatsBar.tsx         # Health metrics & anomaly counters
+│   │   │   ├── Globe3D.tsx          # Interactive 3D Orthographic Globe
+│   │   │   ├── WatershedMap.tsx     # Tactical 2D elevation & contour map
+│   │   │   ├── SiteInspector.tsx    # Site telemetry & cross-validation inspector
+│   │   │   ├── HealthGauge.tsx      # Animated radial SVG score gauge
+│   │   │   ├── AdHocScannerModal.tsx# Click-anywhere Sentinel-2 query modal
+│   │   │   ├── PhotoUploadModal.tsx # Field photo upload with CLIP breakdown
+│   │   │   ├── SiteDirectory.tsx    # Searchable & filterable sites directory
+│   │   │   └── FieldUploadView.tsx  # Dedicated photo upload view
+│   │   └── lib/
+│   │       ├── api.ts        # Type-safe API client with offline demo fallback
+│   │       └── types.ts      # TypeScript interfaces
+│   ├── Dockerfile
+│   └── vercel.json
+│
+├── docs/
+│   └── GEE_SETUP.md          # Step-by-step GEE Service Account Setup Guide
+├── docker-compose.yml        # Multi-container local stack (FastAPI + Next.js + Postgres)
+└── .github/workflows/ci.yml  # Automated pytest CI pipeline
 ```
 
 ---
 
-## 🧪 Verification & Test Suite
+## 🚀 Quick Start
 
-To verify the complete analysis pipeline headlessly:
+### Option 1: Docker Compose (Full Stack)
 
 ```bash
-python test_pipeline.py
+docker compose up --build
+```
+- **Frontend Dashboard**: [http://localhost:3000](http://localhost:3000)
+- **FastAPI Backend Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Backend Health Check**: [http://localhost:8000/api/health](http://localhost:8000/api/health)
+
+---
+
+### Option 2: Running Locally
+
+#### 1. Start Backend
+
+```bash
+cd backend
+python -m venv .venv
+# On Windows:
+.venv\Scripts\activate
+# On macOS/Linux:
+# source .venv/bin/activate
+
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
 ```
 
-Expected output:
-- **7 sites confirmed**
-- **S06 flagged as ANOMALY** (NDWI contradiction, lack of water signature, degraded land classification)
-- Pipeline validation: **PASSED**
+#### 2. Start Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Visit `http://localhost:3000`.
 
 ---
 
-## 🚀 Deployment
+## 🧪 Automated Testing
 
-The app is production-ready for deployment on multiple platforms:
+The backend suite features **64 unit and integration tests** with assertions covering:
+- Cross-validator matrix (confirmed, anomaly, inconclusive logic)
+- Health score boundaries and weighted sums
+- CSV schema and coordinate boundary validators
+- EXIF metadata extraction and warnings
+- FastAPI REST endpoints (`/health`, `/sites`, `/analysis/adhoc`)
 
-- **1-Click Streamlit Community Cloud (Recommended & Free)**: Click the deploy badge above or visit [share.streamlit.io](https://share.streamlit.io/deploy?repository=atharvac9/Clean-water-Initiative&branch=main&mainModule=app.py).
-- **Hugging Face Spaces**: Deploy as a Streamlit Space with 16GB free RAM.
-- **Docker Container**: Build and run locally or on Render/Railway/Fly.io using the included `Dockerfile`:
-  ```bash
-  docker build -t watershed-monitor .
-  docker run -p 8501:8501 watershed-monitor
-  ```
-
-For detailed platform-specific walkthroughs and Earth Engine credentials configuration, see the [**Complete Deployment Guide**](docs/DEPLOYMENT.md).
+Run all tests:
+```bash
+cd backend
+pytest -v
+```
 
 ---
 
-## 📜 License
+## 🛰️ Google Earth Engine Setup
 
-MIT License. Developed for the Smart India Hackathon (SIH 2026).
+To connect real satellite telemetry from Copernicus Sentinel-2:
+1. Create a Google Cloud Project and enable the **Earth Engine API**.
+2. Create a **Service Account** and generate a JSON private key.
+3. Set the environment variables in `backend/.env`:
+   ```env
+   GEE_SERVICE_ACCOUNT_EMAIL="your-sa@your-gcp-project.iam.gserviceaccount.com"
+   GEE_SERVICE_ACCOUNT_KEY='{"type": "service_account", ...}'
+   GEE_PROJECT_ID="your-gcp-project-id"
+   ```
+For complete details, see [**docs/GEE_SETUP.md**](docs/GEE_SETUP.md).
+
+---
+
+## 📄 License
+
+MIT License. Designed for watershed restoration agencies, CSR foundations, and ecological observation teams.

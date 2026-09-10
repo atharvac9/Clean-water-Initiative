@@ -1,0 +1,42 @@
+name: CI — Backend Tests
+
+on:
+  push:
+    branches: [main]
+    paths: ['backend/**']
+  pull_request:
+    branches: [main]
+    paths: ['backend/**']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Clean-water-Initiative/backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: Clean-water-Initiative/backend/requirements*.txt
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Run tests
+        run: pytest -v --tb=short
+        env:
+          # Tests use SQLite — no real Supabase/GEE credentials needed
+          DATABASE_URL: ""
+          GEE_SERVICE_ACCOUNT_KEY: ""
+          GEE_PROJECT_ID: ""
+          SUPABASE_URL: ""
+          SUPABASE_ANON_KEY: ""
+          SUPABASE_SERVICE_ROLE_KEY: ""
