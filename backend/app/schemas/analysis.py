@@ -66,11 +66,11 @@ class ClassificationResult(BaseModel):
 
 class CrossValidationResult(BaseModel):
     """Cross-validation of claimed activity vs evidence."""
-    satellite_agreement: bool
-    photo_agreement: bool
+    satellite_agreement: Optional[bool] = None
+    photo_agreement: Optional[bool] = None
     overall_status: str  # "confirmed", "anomaly", "inconclusive"
-    flags: list[str]
-    confidence: float
+    flags: list[str] = []
+    confidence: float = 0.0
 
 
 class HealthScoreResult(BaseModel):
