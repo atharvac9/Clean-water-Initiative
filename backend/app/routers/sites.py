@@ -113,7 +113,11 @@ async def create_site(body: SiteCreate, db: AsyncSession = Depends(get_db)):
     Create a new monitored site.
     Used when a user clicks a point on the map and wants to save it for tracking.
     """
+    import uuid
+    new_id = str(uuid.uuid4())
     site = Site(
+        id=new_id,
+        site_code=f"SITE-{new_id[:6].upper()}",
         lat=body.lat,
         lon=body.lon,
         activity_type=body.activity_type,

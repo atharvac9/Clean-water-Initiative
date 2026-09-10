@@ -13,6 +13,7 @@ import {
   Loader2,
   Navigation,
   Crosshair,
+  Globe2,
 } from "lucide-react";
 import type L from "leaflet";
 
@@ -22,9 +23,10 @@ interface WatershedMapProps {
   onSelectSite: (site: Site) => void;
   onSelectCoords: (lat: number, lon: number) => void;
   targetCoords?: { lat: number; lon: number } | null;
+  onSearchLocation?: (result: { name: string; displayName: string; lat: number; lon: number }) => void;
 }
 
-type MapLayerType = "osm" | "light" | "dark";
+type MapLayerType = "osm" | "satellite";
 
 interface SearchResult {
   place_id: number | string;
@@ -40,6 +42,7 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
   onSelectSite,
   onSelectCoords,
   targetCoords,
+  onSearchLocation,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -62,24 +65,14 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
     setTimeout(() => setToastMessage(null), 4000);
   }, []);
 
-  // Tile layer URLs - clean street, light, and dark cartography (no satellite imagery)
+  // Tile layer URLs - Street Map and Satellite Imagery
   const getTileLayer = useCallback((layer: MapLayerType, L_lib: typeof L) => {
-    if (layer === "light") {
+    if (layer === "satellite") {
       return L_lib.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
           maxZoom: 19,
-          subdomains: "abcd",
-          attribution: "&copy; CartoDB Positron",
-        }
-      );
-    } else if (layer === "dark") {
-      return L_lib.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        {
-          maxZoom: 19,
-          subdomains: "abcd",
-          attribution: "&copy; CartoDB Dark Matter",
+          attribution: "&copy; Esri, Maxar, Earthstar Geographics",
         }
       );
     } else {
@@ -374,10 +367,23 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
       duration: 1.5,
     });
 
-    onSelectCoords(Number(result.lat.toFixed(4)), Number(result.lon.toFixed(4)));
-    setSearchQuery(result.display_name.split(",")[0]);
+    const lat = Number(result.lat.toFixed(4));
+    const lon = Number(result.lon.toFixed(4));
+    const name = result.display_name.split(",")[0];
+
+    if (onSearchLocation) {
+      onSearchLocation({
+        name,
+        displayName: result.display_name,
+        lat,
+        lon,
+      });
+    }
+
+    onSelectCoords(lat, lon);
+    setSearchQuery(name);
     setIsDropdownOpen(false);
-    showToast(`Jumped to: ${result.display_name.split(",")[0]} (${result.lat.toFixed(4)}, ${result.lon.toFixed(4)})`);
+    showToast(`Jumped to: ${name} (${lat}, ${lon})`);
   };
 
   // Reset View to sites or overview
@@ -504,41 +510,28 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
         <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl p-1 shadow-md pointer-events-auto self-start sm:self-auto">
           <button
             onClick={() => handleLayerChange("osm")}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               activeLayer === "osm"
                 ? "bg-teal-600 text-white shadow-xs"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             }`}
-            title="OpenStreetMap Cartography"
+            title="OpenStreetMap Street View"
           >
             <Layers className="w-3.5 h-3.5" />
             <span className="hidden md:inline">Street Map</span>
           </button>
 
           <button
-            onClick={() => handleLayerChange("light")}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              activeLayer === "light"
+            onClick={() => handleLayerChange("satellite")}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+              activeLayer === "satellite"
                 ? "bg-teal-600 text-white shadow-xs"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             }`}
-            title="Clean Light Cartography"
+            title="Satellite Imagery View"
           >
-            <Eye className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Light</span>
-          </button>
-
-          <button
-            onClick={() => handleLayerChange("dark")}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              activeLayer === "dark"
-                ? "bg-teal-600 text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-            }`}
-            title="Dark Cartography"
-          >
-            <Compass className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Dark</span>
+            <Globe2 className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">Satellite</span>
           </button>
 
           <div className="w-px h-4 bg-slate-200 mx-1" />

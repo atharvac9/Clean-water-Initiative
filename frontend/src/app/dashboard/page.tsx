@@ -11,7 +11,7 @@ import { SiteDirectory } from "../../components/SiteDirectory";
 import { FieldUploadView } from "../../components/FieldUploadView";
 import { fetchSites } from "../../lib/api";
 import { Site, Photo } from "../../lib/types";
-import { Sparkles, Compass, Loader2, Map, Camera, ListFilter } from "lucide-react";
+import { Sparkles, Compass, Loader2, Map, Camera, ListFilter, X } from "lucide-react";
 
 // Dynamically import WatershedMap with SSR disabled (Leaflet requires window)
 const WatershedMap = dynamic(
@@ -30,6 +30,12 @@ const WatershedMap = dynamic(
 export default function DashboardPage() {
   const [sites, setSites] = useState<Site[]>([]);
   const [selectedSite, setSelectedSite] = useState<Site | null>(null);
+  const [activeSearchedPlace, setActiveSearchedPlace] = useState<{
+    name: string;
+    displayName: string;
+    lat: number;
+    lon: number;
+  } | null>(null);
   const [lowerSectionTab, setLowerSectionTab] = useState<"sites" | "upload">("sites");
 
   // Ad-hoc scanner modal state
@@ -42,15 +48,12 @@ export default function DashboardPage() {
   // Photo upload modal state
   const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
 
-  // Load sites on initial mount
+  // Load sites on initial mount (do NOT auto-select — only show when actively searched or clicked)
   useEffect(() => {
     async function loadData() {
       try {
         const data = await fetchSites();
         setSites(data);
-        if (data.length > 0) {
-          setSelectedSite(data[0]);
-        }
       } catch (err) {
         console.error("Failed to load sites", err);
       }
@@ -122,41 +125,67 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* Quick Actions / Active Sites Pills */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {sites.length > 0 ? (
-              <>
-                <span className="text-[11px] text-slate-500 font-mono mr-1">Active Sites ({sites.length}):</span>
-                {sites.slice(0, 8).map((s) => {
-                  const label = s.site_code || s.id.substring(0, 6);
-                  return (
-                    <button
-                      key={s.id}
-                      onClick={() => {
-                        setSelectedSite(s);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      className={`text-[11px] font-mono px-2.5 py-1 rounded-md border transition-all cursor-pointer ${
-                        selectedSite?.id === s.id
-                          ? "bg-teal-50 border-teal-500 text-teal-800 font-bold shadow-xs"
-                          : s.latest_analysis?.overall_status === "anomaly"
-                          ? "bg-red-50 border-red-300 text-red-700 hover:bg-red-100"
-                          : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs"
-                      }`}
-                    >
-                      {label} {s.latest_analysis?.overall_status === "anomaly" ? "⚠" : ""}
-                    </button>
-                  );
-                })}
-              </>
+          {/* Active Search / Selection Indicator (Only shows when actively searched or selected) */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {selectedSite ? (
+              <div className="flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-900 px-3 py-1.5 rounded-xl text-xs shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-teal-600 animate-pulse" />
+                <span className="font-semibold text-slate-700">Active Site:</span>
+                <span className="font-bold text-teal-800 font-mono">
+                  {selectedSite.site_code || `SITE-${selectedSite.id.substring(0, 6).toUpperCase()}`}
+                </span>
+                <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">
+                  ({selectedSite.lat.toFixed(3)}°N, {selectedSite.lon.toFixed(3)}°E)
+                </span>
+                <button
+                  onClick={() => setSelectedSite(null)}
+                  className="ml-1 text-slate-400 hover:text-slate-700 hover:bg-teal-100/50 p-1 rounded-md transition-colors cursor-pointer"
+                  title="Clear active site selection"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : activeSearchedPlace ? (
+              <div className="flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-900 px-3 py-1.5 rounded-xl text-xs shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-teal-600 animate-pulse" />
+                <span className="font-semibold text-slate-700">Actively Searched:</span>
+                <span className="font-bold text-teal-800">
+                  {activeSearchedPlace.name}
+                </span>
+                <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">
+                  ({activeSearchedPlace.lat.toFixed(3)}°, {activeSearchedPlace.lon.toFixed(3)}°)
+                </span>
+                <button
+                  onClick={() => {
+                    setTargetCoords({ lat: activeSearchedPlace.lat, lon: activeSearchedPlace.lon });
+                    setScannerOpen(true);
+                  }}
+                  className="ml-1 text-[11px] font-semibold text-white bg-teal-600 hover:bg-teal-700 px-2.5 py-1 rounded-lg transition-all cursor-pointer shadow-xs"
+                >
+                  Scan Telemetry
+                </button>
+                <button
+                  onClick={() => setActiveSearchedPlace(null)}
+                  className="text-slate-400 hover:text-slate-700 hover:bg-teal-100/50 p-1 rounded-md transition-colors cursor-pointer"
+                  title="Clear active search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
             ) : (
-              <button
-                onClick={() => setScannerOpen(true)}
-                className="flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition-all cursor-pointer shadow-xs"
-              >
-                <Sparkles className="w-3 h-3" />
-                <span>Scan New Coordinates</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                  <span>Search any location on map to inspect</span>
+                </div>
+                <button
+                  onClick={() => setScannerOpen(true)}
+                  className="flex items-center gap-1.5 text-xs font-medium px-3.5 py-1.5 rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition-all cursor-pointer shadow-xs"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Scan Coordinates</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -184,8 +213,14 @@ export default function DashboardPage() {
                 selectedSite={selectedSite}
                 onSelectSite={(s) => {
                   setSelectedSite(s);
+                  setActiveSearchedPlace(null);
                 }}
                 onSelectCoords={handleSelectCoords}
+                onSearchLocation={(res) => {
+                  setActiveSearchedPlace(res);
+                  setSelectedSite(null);
+                  setTargetCoords({ lat: res.lat, lon: res.lon });
+                }}
                 targetCoords={targetCoords}
               />
             </div>
@@ -197,15 +232,64 @@ export default function DashboardPage() {
               <SiteInspector
                 site={selectedSite}
                 onUploadPhotoClick={() => setPhotoUploadOpen(true)}
+                onClose={() => setSelectedSite(null)}
               />
+            ) : activeSearchedPlace ? (
+              <div className="bg-white rounded-2xl p-6 border border-teal-200 text-slate-800 text-xs flex flex-col gap-4 shadow-sm">
+                <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700">
+                      Actively Searched Location
+                    </span>
+                    <h3 className="text-base font-bold text-slate-900 mt-0.5">
+                      {activeSearchedPlace.name}
+                    </h3>
+                    <p className="text-[11px] text-slate-500 truncate max-w-[260px]">
+                      {activeSearchedPlace.displayName}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setActiveSearchedPlace(null)}
+                    className="text-slate-400 hover:text-slate-600 p-1 rounded-md"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1 font-mono text-[11px]">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Latitude:</span>
+                    <span className="font-bold text-slate-900">{activeSearchedPlace.lat.toFixed(4)}°N</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Longitude:</span>
+                    <span className="font-bold text-slate-900">{activeSearchedPlace.lon.toFixed(4)}°E</span>
+                  </div>
+                </div>
+
+                <div className="text-slate-600 text-xs leading-relaxed">
+                  Target coordinates focused on map. Execute telemetry query to analyze vegetation (NDVI) and moisture (NDWI) indices.
+                </div>
+
+                <button
+                  onClick={() => {
+                    setTargetCoords({ lat: activeSearchedPlace.lat, lon: activeSearchedPlace.lon });
+                    setScannerOpen(true);
+                  }}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs transition-all shadow-xs cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Analyze Telemetry Here</span>
+                </button>
+              </div>
             ) : (
               <div className="bg-white rounded-2xl p-6 border border-slate-200 text-center text-slate-500 text-xs flex flex-col items-center justify-center min-h-[360px] gap-3 shadow-xs">
                 <div className="w-12 h-12 rounded-full bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600">
                   <Compass className="w-6 h-6 animate-pulse" />
                 </div>
                 <div className="flex flex-col gap-1 max-w-xs">
-                  <span className="font-semibold text-slate-900 text-sm">No Site Selected</span>
-                  <span className="text-slate-500">Click anywhere on the map or search for any location to inspect coordinates and telemetry.</span>
+                  <span className="font-semibold text-slate-900 text-sm">No Location Selected</span>
+                  <span className="text-slate-500">Search any location on the map or click anywhere on the canvas to inspect telemetry.</span>
                 </div>
                 <button
                   onClick={() => setScannerOpen(true)}

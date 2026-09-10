@@ -35,6 +35,12 @@ export const SiteInspector: React.FC<SiteInspectorProps> = ({
   const isAnomaly = analysis?.overall_status === "anomaly";
   const isConfirmed = analysis?.overall_status === "confirmed";
 
+  const displayName =
+    site.site_code ||
+    (site.description && !site.description.startsWith("Ad-hoc")
+      ? site.description
+      : `Site at ${site.lat.toFixed(3)}°N, ${site.lon.toFixed(3)}°E`);
+
   return (
     <>
       <div className="glass-panel rounded-2xl p-5 border border-slate-200 bg-white shadow-sm flex flex-col gap-5 text-slate-800">
@@ -42,7 +48,7 @@ export const SiteInspector: React.FC<SiteInspectorProps> = ({
         <div className="flex items-start justify-between border-b border-slate-100 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xl font-bold text-slate-900">{site.site_code || site.id}</span>
+              <span className="font-mono text-xl font-bold text-slate-900">{displayName}</span>
               <span
                 className={`text-xs font-bold uppercase px-2.5 py-0.5 rounded-full border ${
                   isAnomaly

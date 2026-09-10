@@ -121,7 +121,7 @@ export const SiteDirectory: React.FC<SiteDirectoryProps> = ({ sites, onSelectSit
                     className="hover:bg-slate-50 transition-colors cursor-pointer group"
                   >
                     <td className="py-3 px-3 font-mono font-bold text-slate-900 flex items-center gap-2">
-                      <span>{site.id}</span>
+                      <span>{site.site_code || `SITE-${site.id.substring(0, 6).toUpperCase()}`}</span>
                       {site.is_seeded_demo && (
                         <span className="text-[9px] px-1.5 py-0.2 rounded bg-teal-50 text-teal-700 border border-teal-200 uppercase font-sans">
                           Demo
