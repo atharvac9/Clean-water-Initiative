@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { Navbar } from "../components/Navbar";
 import { StatsBar } from "../components/StatsBar";
-import { WatershedMap } from "../components/WatershedMap";
-import { Globe3D } from "../components/Globe3D";
 import { SiteInspector } from "../components/SiteInspector";
 import { AdHocScannerModal } from "../components/AdHocScannerModal";
 import { PhotoUploadModal } from "../components/PhotoUploadModal";
@@ -12,13 +11,26 @@ import { SiteDirectory } from "../components/SiteDirectory";
 import { FieldUploadView } from "../components/FieldUploadView";
 import { fetchSites } from "../lib/api";
 import { Site, Photo } from "../lib/types";
-import { Globe, Map, Sparkles, AlertTriangle, ShieldCheck, Compass } from "lucide-react";
+import { Sparkles, AlertTriangle, ShieldCheck, Compass, Loader2, Map } from "lucide-react";
+
+// Dynamically import WatershedMap with SSR disabled (Leaflet requires window)
+const WatershedMap = dynamic(
+  () => import("../components/WatershedMap").then((mod) => mod.WatershedMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full min-h-[520px] rounded-2xl border border-slate-800 bg-[#070d18] flex flex-col items-center justify-center text-slate-400 text-xs gap-3">
+        <Loader2 className="w-6 h-6 text-teal-400 animate-spin" />
+        <span className="font-medium text-slate-300">Initializing High-Resolution Satellite Map Engine...</span>
+      </div>
+    ),
+  }
+);
 
 export default function Dashboard() {
   const [sites, setSites] = useState<Site[]>([]);
   const [selectedSite, setSelectedSite] = useState<Site | null>(null);
   const [activeTab, setActiveTab] = useState<"map" | "sites" | "upload">("map");
-  const [mapMode, setMapMode] = useState<"2d" | "3d">("2d");
 
   // Ad-hoc scanner modal state
   const [scannerOpen, setScannerOpen] = useState(false);
@@ -152,37 +164,16 @@ export default function Dashboard() {
           <StatsBar sites={sites} onSelectAnomaly={handleSelectAnomaly} />
         </div>
 
-        {/* Tab 1: Interactive Map & 3D Globe + Site Inspector */}
+        {/* Tab 1: Interactive Tactical Satellite Map + Site Inspector */}
         {activeTab === "map" && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
-            {/* Map / Globe Column (8 cols on desktop) */}
+            {/* Tactical Map Column (8 cols on desktop) */}
             <div className="lg:col-span-8 flex flex-col gap-3">
-              {/* Map Controls & Mode Switcher */}
+              {/* Map Sub-Header Bar */}
               <div className="flex items-center justify-between px-1">
-                <div className="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-lg p-1 text-xs">
-                  <button
-                    onClick={() => setMapMode("2d")}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-md font-medium transition-all ${
-                      mapMode === "2d"
-                        ? "bg-teal-600 text-white shadow-sm"
-                        : "text-slate-400 hover:text-slate-200"
-                    }`}
-                  >
-                    <Map className="w-3.5 h-3.5" />
-                    <span>Tactical 2D Map</span>
-                  </button>
-
-                  <button
-                    onClick={() => setMapMode("3d")}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-md font-medium transition-all ${
-                      mapMode === "3d"
-                        ? "bg-teal-600 text-white shadow-sm"
-                        : "text-slate-400 hover:text-slate-200"
-                    }`}
-                  >
-                    <Globe className="w-3.5 h-3.5" />
-                    <span>Orthographic 3D Globe</span>
-                  </button>
+                <div className="flex items-center gap-2 text-xs text-slate-300 font-medium">
+                  <Map className="w-3.5 h-3.5 text-teal-400" />
+                  <span>High-Resolution Satellite & Tactical Observatory Map</span>
                 </div>
 
                 <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-400">
@@ -191,24 +182,15 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Visualization Canvas */}
-              <div className="h-[520px]">
-                {mapMode === "2d" ? (
-                  <WatershedMap
-                    sites={sites}
-                    selectedSite={selectedSite}
-                    onSelectSite={setSelectedSite}
-                    onSelectCoords={handleSelectCoords}
-                    targetCoords={targetCoords}
-                  />
-                ) : (
-                  <Globe3D
-                    sites={sites}
-                    selectedSite={selectedSite}
-                    onSelectSite={setSelectedSite}
-                    onSelectCoords={handleSelectCoords}
-                  />
-                )}
+              {/* Map Canvas */}
+              <div className="h-[540px]">
+                <WatershedMap
+                  sites={sites}
+                  selectedSite={selectedSite}
+                  onSelectSite={setSelectedSite}
+                  onSelectCoords={handleSelectCoords}
+                  targetCoords={targetCoords}
+                />
               </div>
             </div>
 
