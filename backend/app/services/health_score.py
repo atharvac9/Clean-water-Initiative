@@ -108,8 +108,10 @@ def compute_health_score_full(
     else:  # anomaly
         agreement_score = 0.0
 
-    # Component 4: Classifier confidence
-    photo_confidence = validation_result.get("details", {}).get("photo_confidence", 0.5)
+    # Component 4: Classifier / Telemetry confidence
+    photo_confidence = validation_result.get("details", {}).get("photo_confidence")
+    if photo_confidence is None:
+        photo_confidence = validation_result.get("confidence", 0.75)
     confidence_score = photo_confidence * 100
 
     # Weighted combination
