@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Clean-water-Initiative/backend
+        working-directory: backend
 
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-          cache-dependency-path: Clean-water-Initiative/backend/requirements*.txt
+          cache-dependency-path: backend/requirements*.txt
 
       - name: Install dependencies
         run: |
@@ -33,7 +33,7 @@ jobs:
       - name: Run tests
         run: pytest -v --tb=short
         env:
-          # Tests use SQLite — no real Supabase/GEE credentials needed
+          # Tests use SQLite — no external credentials needed
           DATABASE_URL: ""
           GEE_SERVICE_ACCOUNT_KEY: ""
           GEE_PROJECT_ID: ""
