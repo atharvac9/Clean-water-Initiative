@@ -88,7 +88,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   NeerDrishti (नीरदृष्टी)
                 </h1>
                 <p className="text-xs font-medium text-teal-700">
-                  Watershed Intelligence & Satellite Compliance Verification
+                  Watershed Intelligence & Field Telemetry Verification
                 </p>
               </div>
             </div>
@@ -225,7 +225,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
             <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-200 text-xs">
               <div className="p-3 bg-slate-50 flex items-center justify-between">
-                <span className="font-medium text-slate-700">Satellite Telemetry Agreement</span>
+                <span className="font-medium text-slate-700">Spectral Telemetry Agreement</span>
                 <span className="font-bold font-mono text-emerald-700 flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>{analysis?.satellite_agreement ? "CONFIRMED" : "INCONCLUSIVE"}</span>

@@ -8,7 +8,6 @@ import {
   Compass,
   ShieldCheck,
   Droplets,
-  Satellite,
   Cpu,
   ArrowRight,
   Mail,
@@ -85,7 +84,7 @@ export default function TeamPage() {
           </h1>
 
           <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed">
-            We are hydrologists, geospatial software engineers, and machine learning researchers dedicated to eliminating ghost water conservation projects through spaceborne satellite telemetry and ground-truth AI.
+            We are hydrologists, geospatial software engineers, and machine learning researchers dedicated to eliminating ghost water conservation projects through multi-spectral telemetry and ground-truth AI.
           </p>
 
           <div className="mt-8 flex items-center gap-3">
@@ -171,7 +170,7 @@ export default function TeamPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
             <div className="flex flex-col gap-2.5">
               <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600">
-                <Satellite className="w-5 h-5" />
+                <Globe2 className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-bold text-slate-900">Open Public Telemetry</h3>
               <p className="text-xs text-slate-600 leading-relaxed">

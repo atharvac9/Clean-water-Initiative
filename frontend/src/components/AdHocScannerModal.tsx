@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Satellite, Crosshair, Check, Sparkles, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
+import { Crosshair, Check, Sparkles, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
 import { runAdHocAnalysis, createSite } from "../lib/api";
 import { ActivityType, AnalysisResult, Site } from "../lib/types";
 import { HealthGauge } from "./HealthGauge";
@@ -48,7 +48,7 @@ export const AdHocScannerModal: React.FC<AdHocScannerModalProps> = ({
       });
       setResult(data);
     } catch (err: any) {
-      setError(err.message || "Failed to execute satellite analysis");
+      setError(err.message || "Failed to execute telemetry analysis");
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +80,7 @@ export const AdHocScannerModal: React.FC<AdHocScannerModalProps> = ({
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600">
-              <Satellite className="w-5 h-5 animate-pulse" />
+              <Crosshair className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900">Watershed Telemetry Scanner</h2>

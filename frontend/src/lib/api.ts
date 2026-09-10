@@ -95,7 +95,7 @@ export async function runAdHocAnalysis(payload: AdHocAnalysisPayload): Promise<A
       confidence_score: 0.85,
       classified_activity: payload.claimed_activity_type || null,
       classification_confidence: 0.88,
-      satellite_source: "Sentinel-2 (Simulated / GEE Offline)",
+      satellite_source: "Multi-Spectral Telemetry (Simulated / GEE Offline)",
       buffer_radius_m: payload.buffer_radius_m || 500,
       analyzed_at: new Date().toISOString(),
     };

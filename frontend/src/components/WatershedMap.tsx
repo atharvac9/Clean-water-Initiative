@@ -7,7 +7,6 @@ import {
   X,
   Compass,
   MapPin,
-  Satellite,
   Eye,
   Layers,
   Sparkles,

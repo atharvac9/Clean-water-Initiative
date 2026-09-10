@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Droplets, Satellite, Users, Home, LayoutDashboard } from "lucide-react";
+import { Droplets, Crosshair, Users, Home, LayoutDashboard } from "lucide-react";
 
 interface NavbarProps {
   onScanClick?: () => void;
@@ -84,7 +84,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onScanClick, activeTab, setActiv
               onClick={onScanClick}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
             >
-              <Satellite className="w-3.5 h-3.5" />
+              <Crosshair className="w-3.5 h-3.5" />
               <span>Scan Coordinates</span>
             </button>
           ) : (
