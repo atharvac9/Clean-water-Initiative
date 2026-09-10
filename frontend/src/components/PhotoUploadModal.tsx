@@ -94,22 +94,22 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-lg glass-panel rounded-2xl border border-slate-700/80 p-6 shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-lg bg-white rounded-2xl border border-slate-200 p-6 shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+            <div className="w-9 h-9 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600">
               <Camera className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-100">Upload Field Verification Photo</h2>
-              <p className="text-xs text-slate-400">Site {site.id} • {site.activity_type?.replace(/_/g, " ")}</p>
+              <h2 className="text-base font-bold text-slate-900">Upload Field Verification Photo</h2>
+              <p className="text-xs text-slate-500">Site {site.id} • {site.activity_type?.replace(/_/g, " ")}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 text-sm px-2.5 py-1 rounded-lg hover:bg-slate-800"
+            className="text-slate-400 hover:text-slate-700 text-sm px-2.5 py-1 rounded-lg hover:bg-slate-100"
           >
             ✕
           </button>
@@ -122,8 +122,8 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
           onClick={() => fileInputRef.current?.click()}
           className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all ${
             previewUrl
-              ? "border-teal-500/50 bg-teal-950/10"
-              : "border-slate-700 hover:border-teal-500/60 bg-slate-900/40"
+              ? "border-teal-500 bg-teal-50/50"
+              : "border-slate-300 hover:border-teal-500 bg-slate-50"
           }`}
         >
           <input
@@ -139,23 +139,23 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
               <img
                 src={previewUrl}
                 alt="Upload preview"
-                className="max-h-48 rounded-lg object-contain border border-slate-700 shadow-md"
+                className="max-h-48 rounded-lg object-contain border border-slate-200 shadow-sm"
               />
-              <span className="text-xs text-slate-300 font-mono">
+              <span className="text-xs text-slate-700 font-mono">
                 {selectedFile?.name} ({(selectedFile!.size / 1024).toFixed(1)} KB)
               </span>
-              <span className="text-[11px] text-teal-400">Click or drop to replace image</span>
+              <span className="text-[11px] text-teal-600 font-medium">Click or drop to replace image</span>
             </div>
           ) : (
             <>
-              <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
-                <Upload className="w-6 h-6 text-teal-400" />
+              <div className="w-12 h-12 rounded-full bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600">
+                <Upload className="w-6 h-6" />
               </div>
               <div className="text-center">
-                <p className="text-xs font-semibold text-slate-200">
+                <p className="text-xs font-semibold text-slate-800">
                   Drop field photograph here or click to browse
                 </p>
-                <p className="text-[11px] text-slate-400 mt-1">
+                <p className="text-[11px] text-slate-500 mt-1">
                   Supports JPEG, PNG with EXIF camera/GPS tags (up to 25MB)
                 </p>
               </div>
@@ -168,7 +168,7 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
           <button
             onClick={handleUpload}
             disabled={isUploading}
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs shadow-lg shadow-teal-950/50 transition-all cursor-pointer disabled:opacity-50"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs shadow-md shadow-teal-700/20 transition-all cursor-pointer disabled:opacity-50"
           >
             {isUploading ? (
               <>
@@ -186,41 +186,41 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
 
         {/* Classification & EXIF Result Breakdown */}
         {result && (
-          <div className="bg-slate-950/80 rounded-xl p-4 border border-teal-500/40 flex flex-col gap-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <span className="text-xs font-bold text-teal-300 uppercase tracking-wider">
+          <div className="bg-slate-50 rounded-xl p-4 border border-teal-200 flex flex-col gap-4">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <span className="text-xs font-bold text-teal-800 uppercase tracking-wider">
                 CLIP Classification Results
               </span>
-              <span className="text-xs font-mono text-emerald-400 font-bold">
+              <span className="text-xs font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                 {((result.classification_confidence || 0) * 100).toFixed(1)}% Confidence
               </span>
             </div>
 
             <div>
-              <div className="text-xs text-slate-400">Predicted Intervention:</div>
-              <div className="text-base font-bold font-mono text-slate-100 capitalize mt-0.5">
+              <div className="text-xs text-slate-500">Predicted Intervention:</div>
+              <div className="text-base font-bold font-mono text-slate-900 capitalize mt-0.5">
                 {result.predicted_class?.replace(/_/g, " ")}
               </div>
             </div>
 
             {/* Probability Bars */}
             {result.all_scores && (
-              <div className="space-y-1.5 pt-2 border-t border-slate-800/80">
-                <div className="text-[10px] text-slate-400 uppercase font-mono mb-1">
+              <div className="space-y-1.5 pt-2 border-t border-slate-200">
+                <div className="text-[10px] text-slate-500 uppercase font-mono mb-1">
                   Softmax Probability Distribution
                 </div>
                 {Object.entries(result.all_scores).slice(0, 4).map(([cls, prob]) => (
                   <div key={cls} className="flex items-center justify-between text-[11px] gap-2">
-                    <span className="text-slate-300 capitalize font-mono text-[10px] w-28 truncate">
+                    <span className="text-slate-700 capitalize font-mono text-[10px] w-28 truncate">
                       {cls.replace(/_/g, " ")}
                     </span>
-                    <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-teal-500 rounded-full"
+                        className="h-full bg-teal-600 rounded-full"
                         style={{ width: `${(prob as number) * 100}%` }}
                       />
                     </div>
-                    <span className="text-slate-400 font-mono text-[10px] w-10 text-right">
+                    <span className="text-slate-600 font-mono text-[10px] w-10 text-right">
                       {((prob as number) * 100).toFixed(0)}%
                     </span>
                   </div>
@@ -229,22 +229,22 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
             )}
 
             {/* EXIF Metadata Authenticity */}
-            <div className="bg-slate-900/90 rounded-lg p-3 border border-slate-800 text-xs flex flex-col gap-1.5 font-mono">
-              <div className="flex items-center gap-1.5 text-teal-300 font-bold text-[11px]">
-                <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
+            <div className="bg-white rounded-lg p-3 border border-slate-200 text-xs flex flex-col gap-1.5 font-mono shadow-xs">
+              <div className="flex items-center gap-1.5 text-teal-800 font-bold text-[11px]">
+                <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
                 <span>EXIF Authenticity Validation</span>
               </div>
-              <div className="flex justify-between text-slate-300 text-[11px]">
+              <div className="flex justify-between text-slate-600 text-[11px]">
                 <span>Camera:</span>
-                <span className="text-slate-100">{result.exif_camera || "Embedded Digital Sensor"}</span>
+                <span className="text-slate-900 font-medium">{result.exif_camera || "Embedded Digital Sensor"}</span>
               </div>
-              <div className="flex justify-between text-slate-300 text-[11px]">
+              <div className="flex justify-between text-slate-600 text-[11px]">
                 <span>Timestamp:</span>
-                <span className="text-slate-100">{result.exif_timestamp || "Metadata Validated"}</span>
+                <span className="text-slate-900 font-medium">{result.exif_timestamp || "Metadata Validated"}</span>
               </div>
-              <div className="flex justify-between text-slate-300 text-[11px]">
+              <div className="flex justify-between text-slate-600 text-[11px]">
                 <span>GPS Location:</span>
-                <span className={result.exif_has_gps ? "text-emerald-400" : "text-amber-400"}>
+                <span className={result.exif_has_gps ? "text-emerald-700 font-medium" : "text-amber-700 font-medium"}>
                   {result.exif_has_gps
                     ? `${result.exif_lat?.toFixed(4)}°N, ${result.exif_lon?.toFixed(4)}°E`
                     : "No GPS geotag present"}
@@ -254,7 +254,7 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
 
             <button
               onClick={onClose}
-              className="w-full py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold"
+              className="w-full py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs"
             >
               Done & Return to Site
             </button>

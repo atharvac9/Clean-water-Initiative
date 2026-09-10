@@ -1,112 +1,101 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Droplets, Satellite, Cpu, ShieldCheck, Database, RefreshCw } from "lucide-react";
-import { fetchHealth } from "../lib/api";
-import { SystemHealth } from "../lib/types";
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Droplets, Satellite, Users, Home, LayoutDashboard } from "lucide-react";
 
 interface NavbarProps {
-  onScanClick: () => void;
-  activeTab: "map" | "sites" | "upload";
-  setActiveTab: (tab: "map" | "sites" | "upload") => void;
+  onScanClick?: () => void;
+  activeTab?: "map" | "sites" | "upload";
+  setActiveTab?: (tab: "map" | "sites" | "upload") => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onScanClick, activeTab, setActiveTab }) => {
-  const [health, setHealth] = useState<SystemHealth | null>(null);
+  const pathname = usePathname();
 
-  const checkStatus = async () => {
-    const data = await fetchHealth();
-    setHealth(data);
-  };
-
-  useEffect(() => {
-    checkStatus();
-    const timer = setInterval(checkStatus, 30000);
-    return () => clearInterval(timer);
-  }, []);
+  const isDashboard = pathname.startsWith("/dashboard") || pathname.startsWith("/observatory");
+  const isHome = pathname === "/";
+  const isTeam = pathname.startsWith("/team");
 
   return (
-    <header className="sticky top-0 z-50 glass-panel border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
+    <header className="no-print sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand */}
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab("map")}>
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400">
-            <Droplets className="w-5 h-5 text-teal-400" />
-            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-slate-950 animate-pulse" />
+        {/* Brand: MeerDrushti */}
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 text-teal-600 group-hover:bg-teal-100 transition-colors">
+            <Droplets className="w-5 h-5 text-teal-600" />
+            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-lg text-slate-100 tracking-tight">Clean Water</span>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30 uppercase tracking-wider">
-                Initiative
+              <span className="font-bold text-lg text-slate-900 tracking-tight">MeerDrushti</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200 tracking-wider">
+                नीरदृष्टी
               </span>
             </div>
-            <p className="text-xs text-slate-400 hidden sm:block">Sentinel-2 & CLIP Watershed Intelligence</p>
+            <p className="text-xs text-slate-500 hidden sm:block">Watershed Intelligence & Satellite Telemetry</p>
           </div>
-        </div>
+        </Link>
 
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-lg p-1">
-          <button
-            onClick={() => setActiveTab("map")}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-              activeTab === "map"
-                ? "bg-teal-600 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+        {/* Navigation Links */}
+        <nav className="flex items-center gap-1.5 bg-slate-100/90 border border-slate-200/90 rounded-xl p-1">
+          <Link
+            href="/"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              isHome
+                ? "bg-white text-teal-700 shadow-xs font-bold"
+                : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
             }`}
           >
-            Live Map & Globe
-          </button>
-          <button
-            onClick={() => setActiveTab("sites")}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-              activeTab === "sites"
-                ? "bg-teal-600 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
-            }`}
-          >
-            Monitored Sites
-          </button>
-          <button
-            onClick={() => setActiveTab("upload")}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-              activeTab === "upload"
-                ? "bg-teal-600 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
-            }`}
-          >
-            Field Photo Upload
-          </button>
-        </div>
+            <Home className="w-3.5 h-3.5" />
+            <span>Home</span>
+          </Link>
 
-        {/* Right Status Badges & Quick Action */}
+          <Link
+            href="/dashboard"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              isDashboard
+                ? "bg-white text-teal-700 shadow-xs font-bold"
+                : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+            }`}
+          >
+            <LayoutDashboard className="w-3.5 h-3.5" />
+            <span>Dashboard</span>
+          </Link>
+
+          <Link
+            href="/team"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              isTeam
+                ? "bg-white text-teal-700 shadow-xs font-bold"
+                : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Team</span>
+          </Link>
+        </nav>
+
+        {/* Right Action Button: GEE & CLIP badges removed as requested */}
         <div className="flex items-center gap-3">
-          {/* Telemetry badges */}
-          <div className="hidden lg:flex items-center gap-2 text-[11px] font-mono">
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300" title="Copernicus Sentinel-2 Surface Reflectance">
-              <Satellite className="w-3.5 h-3.5 text-cyan-400" />
-              <span>GEE:</span>
-              <span className={health?.services.gee_configured ? "text-emerald-400 font-semibold" : "text-amber-400"}>
-                {health?.services.gee_configured ? "ONLINE" : "STANDBY"}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300" title="OpenAI ViT-B-32 Zero-Shot Classifier">
-              <Cpu className="w-3.5 h-3.5 text-violet-400" />
-              <span>CLIP:</span>
-              <span className={health?.services.clip_model_loaded ? "text-emerald-400 font-semibold" : "text-slate-400"}>
-                {health?.services.clip_model_loaded ? "LOADED" : "ON-DEMAND"}
-              </span>
-            </div>
-          </div>
-
-          <button
-            onClick={onScanClick}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-medium text-xs shadow-lg shadow-teal-900/30 transition-all active:scale-95 cursor-pointer"
-          >
-            <Satellite className="w-4 h-4 animate-spin-slow" />
-            <span>Scan Coordinates</span>
-          </button>
+          {isDashboard && onScanClick ? (
+            <button
+              onClick={onScanClick}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+            >
+              <Satellite className="w-3.5 h-3.5" />
+              <span>Scan Coordinates</span>
+            </button>
+          ) : (
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium text-xs shadow-xs transition-all active:scale-95"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Open Dashboard</span>
+            </Link>
+          )}
         </div>
       </div>
     </header>

@@ -36,12 +36,12 @@ export const SiteDirectory: React.FC<SiteDirectoryProps> = ({ sites, onSelectSit
   });
 
   return (
-    <div className="glass-panel rounded-2xl p-5 border border-slate-800 flex flex-col gap-4">
+    <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col gap-4">
       {/* Directory Header & Filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
         <div>
-          <h2 className="text-base font-bold text-slate-100">Monitored Watershed Sites</h2>
-          <p className="text-xs text-slate-400">Total {sites.length} active sites in observation network</p>
+          <h2 className="text-base font-bold text-slate-900">Monitored Watershed Sites</h2>
+          <p className="text-xs text-slate-500">Total {sites.length} active sites in observation network</p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
@@ -53,7 +53,7 @@ export const SiteDirectory: React.FC<SiteDirectoryProps> = ({ sites, onSelectSit
               placeholder="Search site, village..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-teal-500 w-44"
+              className="bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-teal-600 focus:bg-white w-44"
             />
           </div>
 
@@ -61,7 +61,7 @@ export const SiteDirectory: React.FC<SiteDirectoryProps> = ({ sites, onSelectSit
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
+            className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-teal-600 focus:bg-white"
           >
             <option value="all">All Statuses</option>
             <option value="confirmed">Confirmed</option>
@@ -73,7 +73,7 @@ export const SiteDirectory: React.FC<SiteDirectoryProps> = ({ sites, onSelectSit
           <select
             value={filterActivity}
             onChange={(e) => setFilterActivity(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-teal-500 capitalize"
+            className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-teal-600 focus:bg-white capitalize"
           >
             <option value="all">All Activities</option>
             <option value="check_dam">Check Dam</option>
@@ -86,8 +86,8 @@ export const SiteDirectory: React.FC<SiteDirectoryProps> = ({ sites, onSelectSit
 
       {/* Sites Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-slate-300">
-          <thead className="bg-slate-900/80 text-[11px] uppercase font-mono text-slate-400 border-b border-slate-800">
+        <table className="w-full text-left text-xs text-slate-700">
+          <thead className="bg-slate-50 text-[11px] uppercase font-mono text-slate-500 border-b border-slate-200">
             <tr>
               <th className="py-2.5 px-3">Site ID</th>
               <th className="py-2.5 px-3">Intervention Type</th>
@@ -97,13 +97,13 @@ export const SiteDirectory: React.FC<SiteDirectoryProps> = ({ sites, onSelectSit
               <th className="py-2.5 px-3 text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-slate-100">
             {filteredSites.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-12 text-center text-slate-400 text-xs">
+                <td colSpan={6} className="py-12 text-center text-slate-400 text-xs">
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <Filter className="w-6 h-6 text-slate-500" />
-                    <span className="font-medium text-slate-300">No watershed sites monitored yet</span>
+                    <Filter className="w-6 h-6 text-slate-400" />
+                    <span className="font-medium text-slate-700">No watershed sites monitored yet</span>
                     <span className="text-slate-500 max-w-sm">Scan coordinates on the tactical map or upload field photos to register your first watershed site.</span>
                   </div>
                 </td>
@@ -118,82 +118,83 @@ export const SiteDirectory: React.FC<SiteDirectoryProps> = ({ sites, onSelectSit
                   <tr
                     key={site.id}
                     onClick={() => onSelectSite(site)}
-                    className="hover:bg-slate-800/40 transition-colors cursor-pointer group"
+                    className="hover:bg-slate-50 transition-colors cursor-pointer group"
                   >
-                    <td className="py-3 px-3 font-mono font-bold text-slate-100 flex items-center gap-2">
+                    <td className="py-3 px-3 font-mono font-bold text-slate-900 flex items-center gap-2">
                       <span>{site.id}</span>
                       {site.is_seeded_demo && (
-                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-teal-500/10 text-teal-300 border border-teal-500/20 uppercase font-sans">
-                        Demo
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-3 px-3 capitalize text-slate-200">
-                    {site.activity_type ? site.activity_type.replace(/_/g, " ") : "General Basin"}
-                  </td>
-                  <td className="py-3 px-3 font-mono text-slate-400 text-[11px]">
-                    {site.lat.toFixed(4)}°N, {site.lon.toFixed(4)}°E
-                  </td>
-                  <td className="py-3 px-3 text-center">
-                    {analysis?.health_score !== undefined && analysis?.health_score !== null ? (
-                      <div className="inline-flex items-center gap-1.5 font-mono">
-                        <span className="font-bold text-slate-100">{Math.round(analysis.health_score)}</span>
-                        <span
-                          className={`text-[10px] px-1 rounded font-bold ${
-                            analysis.health_score >= 75
-                              ? "bg-emerald-500/20 text-emerald-400"
-                              : analysis.health_score >= 50
-                              ? "bg-amber-500/20 text-amber-400"
-                              : "bg-red-500/20 text-red-400"
-                          }`}
-                        >
-                          {analysis.health_grade}
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-teal-50 text-teal-700 border border-teal-200 uppercase font-sans">
+                          Demo
                         </span>
-                      </div>
-                    ) : (
-                      <span className="text-slate-500">—</span>
-                    )}
-                  </td>
-                  <td className="py-3 px-3">
-                    <span
-                      className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full border ${
-                        isAnomaly
-                          ? "bg-red-500/10 border-red-500/30 text-red-400"
-                          : isConfirmed
-                          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                          : "bg-slate-800 border-slate-700 text-slate-400"
-                      }`}
-                    >
-                      {isAnomaly ? (
-                        <>
-                          <AlertTriangle className="w-3 h-3" />
-                          <span>Anomaly Flagged</span>
-                        </>
-                      ) : isConfirmed ? (
-                        <>
-                          <CheckCircle2 className="w-3 h-3" />
-                          <span>Verified</span>
-                        </>
-                      ) : (
-                        <span>Pending</span>
                       )}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 text-right">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSelectSite(site);
-                      }}
-                      className="inline-flex items-center gap-1 text-teal-400 group-hover:text-teal-300 text-xs font-medium hover:underline cursor-pointer"
-                    >
-                      <span>Inspect</span>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </button>
-                  </td>
-                </tr>
-              );
-            }))}
+                    </td>
+                    <td className="py-3 px-3 capitalize text-slate-800">
+                      {site.activity_type ? site.activity_type.replace(/_/g, " ") : "General Basin"}
+                    </td>
+                    <td className="py-3 px-3 font-mono text-slate-500 text-[11px]">
+                      {site.lat.toFixed(4)}°N, {site.lon.toFixed(4)}°E
+                    </td>
+                    <td className="py-3 px-3 text-center">
+                      {analysis?.health_score !== undefined && analysis?.health_score !== null ? (
+                        <div className="inline-flex items-center gap-1.5 font-mono">
+                          <span className="font-bold text-slate-900">{Math.round(analysis.health_score)}</span>
+                          <span
+                            className={`text-[10px] px-1 rounded font-bold ${
+                              analysis.health_score >= 75
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : analysis.health_score >= 50
+                                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                : "bg-red-50 text-red-700 border border-red-200"
+                            }`}
+                          >
+                            {analysis.health_grade}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-3">
+                      <span
+                        className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full border ${
+                          isAnomaly
+                            ? "bg-red-50 border-red-200 text-red-700"
+                            : isConfirmed
+                            ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                            : "bg-slate-100 border-slate-200 text-slate-600"
+                        }`}
+                      >
+                        {isAnomaly ? (
+                          <>
+                            <AlertTriangle className="w-3 h-3 text-red-600" />
+                            <span>Anomaly Flagged</span>
+                          </>
+                        ) : isConfirmed ? (
+                          <>
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                            <span>Verified</span>
+                          </>
+                        ) : (
+                          <span>Pending</span>
+                        )}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 text-right">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectSite(site);
+                        }}
+                        className="inline-flex items-center gap-1 text-teal-600 group-hover:text-teal-700 text-xs font-medium hover:underline cursor-pointer"
+                      >
+                        <span>Inspect</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>

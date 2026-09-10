@@ -1,17 +1,18 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 :root {
-  --background: #080d1a;
-  --foreground: #f1f5f9;
-  --primary: #0f766e;
-  --primary-glow: rgba(15, 118, 110, 0.35);
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --primary: #0d9488;
+  --primary-glow: rgba(13, 148, 136, 0.18);
   --accent: #d97706;
-  --accent-glow: rgba(217, 119, 6, 0.25);
+  --accent-glow: rgba(217, 119, 6, 0.15);
   --success: #16a34a;
   --danger: #dc2626;
-  --surface: #0f172a;
-  --surface-border: #1e293b;
-  --surface-hover: #1e293b;
+  --surface: #ffffff;
+  --surface-border: #e2e8f0;
+  --surface-hover: #f1f5f9;
 }
 
 body {
@@ -21,46 +22,43 @@ body {
   overflow-x: hidden;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar (light) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #080d1a;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94a3b8;
 }
 
-/* Glassmorphic card utility */
+/* Glassmorphic card utility (light theme) */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(51, 65, 85, 0.6);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
 }
 
 .glass-panel-hover:hover {
-  border-color: rgba(15, 118, 110, 0.6);
-  box-shadow: 0 0 20px rgba(15, 118, 110, 0.2);
+  border-color: rgba(13, 148, 136, 0.4);
+  box-shadow: 0 8px 24px rgba(13, 148, 136, 0.08);
 }
 
 /* Radar scan pulse */
 @keyframes radar-scan {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .animate-radar {
@@ -68,36 +66,28 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
-    opacity: 0.4;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.05);
-  }
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
 }
 
 .animate-glow {
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
-/* ── Leaflet Dark Theme Overrides ────────────────────────────── */
-@import "leaflet/dist/leaflet.css";
-
+/* ── Leaflet Light Theme Overrides ───────────────────────────── */
 .leaflet-container {
-  background: #080d1a !important;
+  background: #e2e8f0 !important;
   font-family: inherit !important;
 }
 
 .leaflet-popup-content-wrapper {
-  background: rgba(15, 23, 42, 0.95) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(51, 65, 85, 0.8) !important;
-  color: #f1f5f9 !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+  color: #0f172a !important;
   border-radius: 12px !important;
-  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.12) !important;
   padding: 0 !important;
 }
 
@@ -107,38 +97,66 @@ body {
 }
 
 .leaflet-popup-tip {
-  background: rgba(15, 23, 42, 0.95) !important;
-  border: 1px solid rgba(51, 65, 85, 0.8) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
 }
 
 .leaflet-tooltip {
-  background: rgba(15, 23, 42, 0.95) !important;
-  border: 1px solid rgba(15, 118, 110, 0.6) !important;
-  color: #f1f5f9 !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid rgba(13, 148, 136, 0.5) !important;
+  color: #0f172a !important;
   border-radius: 8px !important;
   font-size: 11px !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
   padding: 4px 8px !important;
 }
 
 .leaflet-tooltip-top:before {
-  border-top-color: rgba(15, 118, 110, 0.6) !important;
+  border-top-color: rgba(13, 148, 136, 0.5) !important;
 }
 
 .leaflet-bar {
-  border: 1px solid rgba(51, 65, 85, 0.7) !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
   border-radius: 10px !important;
   overflow: hidden !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
 }
 
 .leaflet-bar a {
-  background-color: rgba(15, 23, 42, 0.9) !important;
-  color: #94a3b8 !important;
-  border-bottom: 1px solid rgba(51, 65, 85, 0.5) !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: #475569 !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
 }
 
 .leaflet-bar a:hover {
-  background-color: #1e293b !important;
-  color: #38bdf8 !important;
+  background-color: #f1f5f9 !important;
+  color: #0f766e !important;
+}
+
+/* ── Print Styles (Print ONLY the given report data) ─────────── */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+  }
+
+  header, nav, footer, .no-print, [role="dialog"]:not(.printable-dialog) {
+    display: none !important;
+  }
+
+  .printable-certificate {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    z-index: 999999 !important;
+  }
 }

@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Clean Water Initiative — Watershed Intelligence Dashboard",
+  title: "MeerDrushti (नीरदृष्टी) — Watershed Intelligence Dashboard",
   description:
-    "Multi-source waterbody health monitoring platform combining Sentinel-2 satellite indices (NDVI/NDWI) with OpenCLIP zero-shot field photo verification and cross-validation.",
+    "Autonomous satellite telemetry & multi-spectral monitoring platform combining Copernicus Sentinel-2 NDVI/NDWI indices with OpenCLIP zero-shot field photo verification.",
   keywords: [
+    "MeerDrushti",
     "watershed health",
-    "clean water",
     "satellite telemetry",
     "Sentinel-2",
     "NDVI",
@@ -23,8 +23,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full bg-[#080d1a] antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className="h-full bg-slate-50 text-slate-900 antialiased">
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 selection:bg-teal-500 selection:text-white">
+        {children}
+      </body>
     </html>
   );
 }

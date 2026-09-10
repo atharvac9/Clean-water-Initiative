@@ -18,21 +18,21 @@ export const HealthGauge: React.FC<HealthGaugeProps> = ({
   const safeScore = Math.max(0, Math.min(100, Math.round(score ?? 0)));
 
   // Determine color theme
-  let strokeColor = "#38bdf8"; // cyan
-  let gradeBg = "bg-cyan-500/20 text-cyan-300 border-cyan-500/40";
+  let strokeColor = "#0284c7"; // sky-600
+  let gradeBg = "bg-sky-50 text-sky-700 border-sky-300";
 
   if (safeScore >= 80) {
-    strokeColor = "#10b981"; // emerald
-    gradeBg = "bg-emerald-500/20 text-emerald-300 border-emerald-500/40";
+    strokeColor = "#059669"; // emerald-600
+    gradeBg = "bg-emerald-50 text-emerald-700 border-emerald-300";
   } else if (safeScore >= 65) {
-    strokeColor = "#14b8a6"; // teal
-    gradeBg = "bg-teal-500/20 text-teal-300 border-teal-500/40";
+    strokeColor = "#0d9488"; // teal-600
+    gradeBg = "bg-teal-50 text-teal-700 border-teal-300";
   } else if (safeScore >= 50) {
-    strokeColor = "#f59e0b"; // amber
-    gradeBg = "bg-amber-500/20 text-amber-300 border-amber-500/40";
+    strokeColor = "#d97706"; // amber-600
+    gradeBg = "bg-amber-50 text-amber-700 border-amber-300";
   } else {
-    strokeColor = "#ef4444"; // red
-    gradeBg = "bg-red-500/20 text-red-300 border-red-500/40";
+    strokeColor = "#dc2626"; // red-600
+    gradeBg = "bg-red-50 text-red-700 border-red-300";
   }
 
   // Radius & circumference for SVG radial arc
@@ -52,7 +52,7 @@ export const HealthGauge: React.FC<HealthGaugeProps> = ({
             cx="65"
             cy="65"
             r={radius}
-            stroke="#1e293b"
+            stroke="#e2e8f0"
             strokeWidth="10"
             fill="transparent"
             strokeDasharray={`${arcLength} ${circumference}`}
@@ -77,29 +77,29 @@ export const HealthGauge: React.FC<HealthGaugeProps> = ({
 
         {/* Center score display */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pt-2">
-          <div className="text-3xl font-bold font-mono text-slate-100 tracking-tight">
+          <div className="text-3xl font-bold font-mono text-slate-900 tracking-tight">
             {safeScore}
           </div>
-          <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+          <div className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
             Health Score
           </div>
         </div>
 
         {/* Grade badge */}
         <div
-          className={`absolute bottom-0 right-2 px-2 py-0.5 rounded-md text-xs font-bold font-mono border ${gradeBg}`}
+          className={`absolute bottom-0 right-2 px-2 py-0.5 rounded-md text-xs font-bold font-mono border shadow-xs ${gradeBg}`}
         >
           Grade {grade || "?"}
         </div>
       </div>
 
       {/* Mini deltas */}
-      <div className="w-full grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-800 text-xs">
-        <div className="bg-slate-900/60 rounded p-1.5 border border-slate-800/80">
-          <div className="text-[10px] text-slate-400 uppercase font-mono">Δ NDVI (Veg)</div>
+      <div className="w-full grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-200 text-xs">
+        <div className="bg-slate-50 rounded p-1.5 border border-slate-200">
+          <div className="text-[10px] text-slate-500 uppercase font-mono">Δ NDVI (Veg)</div>
           <div
             className={`font-mono font-semibold ${
-              (ndviDelta ?? 0) >= 0 ? "text-emerald-400" : "text-red-400"
+              (ndviDelta ?? 0) >= 0 ? "text-emerald-600" : "text-red-600"
             }`}
           >
             {(ndviDelta ?? 0) >= 0 ? "+" : ""}
@@ -107,11 +107,11 @@ export const HealthGauge: React.FC<HealthGaugeProps> = ({
           </div>
         </div>
 
-        <div className="bg-slate-900/60 rounded p-1.5 border border-slate-800/80">
-          <div className="text-[10px] text-slate-400 uppercase font-mono">Δ NDWI (Water)</div>
+        <div className="bg-slate-50 rounded p-1.5 border border-slate-200">
+          <div className="text-[10px] text-slate-500 uppercase font-mono">Δ NDWI (Water)</div>
           <div
             className={`font-mono font-semibold ${
-              (ndwiDelta ?? 0) >= 0 ? "text-cyan-400" : "text-red-400"
+              (ndwiDelta ?? 0) >= 0 ? "text-sky-600" : "text-red-600"
             }`}
           >
             {(ndwiDelta ?? 0) >= 0 ? "+" : ""}
