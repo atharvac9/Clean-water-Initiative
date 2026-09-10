@@ -18,6 +18,7 @@ interface WatershedMapProps {
   onSelectSite: (site: Site) => void;
   onSelectCoords: (lat: number, lon: number) => void;
   targetCoords?: { lat: number; lon: number } | null;
+  targetLocationName?: string | null;
 }
 
 type MapLayerType = "osm" | "satellite";
@@ -28,6 +29,7 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
   onSelectSite,
   onSelectCoords,
   targetCoords,
+  targetLocationName,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -38,6 +40,11 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
 
   const [activeLayer, setActiveLayer] = useState<MapLayerType>("osm");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [mapReady, setMapReady] = useState<boolean>(false);
+
+  // Keep latest onSelectCoords in ref to avoid map recreation
+  const onSelectCoordsRef = useRef(onSelectCoords);
+  onSelectCoordsRef.current = onSelectCoords;
 
   // Show a temporary toast message
   const showToast = useCallback((msg: string) => {
@@ -66,7 +73,7 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
     }
   }, []);
 
-  // Initialize Leaflet map
+  // Initialize Leaflet map ONCE on mount
   useEffect(() => {
     let isMounted = true;
 
@@ -79,10 +86,10 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
 
       leafletLibRef.current = L;
 
-      // Determine initial center
-      const initialLat = sites.length > 0 ? sites[0].lat : 20.5937;
-      const initialLon = sites.length > 0 ? sites[0].lon : 78.9629;
-      const initialZoom = sites.length > 0 ? 12 : 5;
+      // Center on India or targetCoords
+      const initialLat = targetCoords ? targetCoords.lat : 20.5937;
+      const initialLon = targetCoords ? targetCoords.lon : 78.9629;
+      const initialZoom = targetCoords ? 13 : 6;
 
       const map = L.map(mapContainerRef.current, {
         center: [initialLat, initialLon],
@@ -111,11 +118,12 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
       map.on("click", (e: L.LeafletMouseEvent) => {
         const lat = Number(e.latlng.lat.toFixed(4));
         const lon = Number(e.latlng.lng.toFixed(4));
-        onSelectCoords(lat, lon);
+        onSelectCoordsRef.current(lat, lon);
         showToast(`Selected coordinates: ${lat}°N, ${lon}°E`);
       });
 
       mapInstanceRef.current = map;
+      setMapReady(true);
     }
 
     initMap();
@@ -125,9 +133,12 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
+        targetMarkerRef.current = null;
+        siteMarkersRef.current = null;
+        setMapReady(false);
       }
     };
-  }, [getTileLayer, onSelectCoords, showToast, sites]);
+  }, []);
 
   // Handle Layer Switching
   const handleLayerChange = (newLayer: MapLayerType) => {
@@ -149,7 +160,7 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
     const map = mapInstanceRef.current;
     const sitesGroup = siteMarkersRef.current;
     const L = leafletLibRef.current;
-    if (!map || !sitesGroup || !L) return;
+    if (!map || !sitesGroup || !L || !mapReady) return;
 
     sitesGroup.clearLayers();
 
@@ -221,23 +232,39 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
 
       marker.addTo(sitesGroup);
     });
-  }, [sites, selectedSite, onSelectSite]);
+  }, [sites, selectedSite, onSelectSite, mapReady]);
 
-  // Update Target Pin when targetCoords changes
+  // Update Target Pin and smoothly fly map camera when targetCoords or targetLocationName changes
   useEffect(() => {
     const map = mapInstanceRef.current;
     const L = leafletLibRef.current;
-    if (!map || !L) return;
+    if (!map || !L || !mapReady) return;
 
     if (targetCoords) {
+      const popupHtml = `
+        <div class="text-xs font-sans p-1 min-w-[170px]">
+          <div class="font-bold text-teal-800 flex items-center gap-1.5 border-b border-slate-200 pb-1">
+            <span>🎯 ${targetLocationName || "Target Location"}</span>
+          </div>
+          <div class="font-mono text-slate-700 mt-1.5 font-semibold text-[11px]">
+            ${targetCoords.lat.toFixed(4)}°N, ${targetCoords.lon.toFixed(4)}°E
+          </div>
+          <div class="text-[10px] text-teal-600 mt-1 font-medium">
+            ✓ Ready for watershed telemetry
+          </div>
+        </div>
+      `;
+
       if (targetMarkerRef.current) {
         targetMarkerRef.current.setLatLng([targetCoords.lat, targetCoords.lon]);
+        targetMarkerRef.current.setPopupContent(popupHtml);
+        targetMarkerRef.current.openPopup();
       } else {
         const targetHtml = `
           <div class="relative flex items-center justify-center">
-            <div class="absolute w-10 h-10 rounded-full border-2 border-teal-400 animate-ping opacity-60"></div>
-            <div class="w-8 h-8 rounded-full bg-teal-500/20 border-2 border-teal-300 flex items-center justify-center shadow-xl backdrop-blur-md">
-              <div class="w-2.5 h-2.5 rounded-full bg-teal-300 animate-pulse"></div>
+            <div class="absolute w-12 h-12 rounded-full border-2 border-teal-500 animate-ping opacity-60"></div>
+            <div class="w-9 h-9 rounded-full bg-teal-500/25 border-2 border-teal-600 flex items-center justify-center shadow-xl backdrop-blur-md">
+              <div class="w-3 h-3 rounded-full bg-teal-600 animate-pulse"></div>
             </div>
           </div>
         `;
@@ -245,8 +272,8 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
         const targetIcon = L.divIcon({
           html: targetHtml,
           className: "target-crosshair-pin",
-          iconSize: [32, 32],
-          iconAnchor: [16, 16],
+          iconSize: [36, 36],
+          iconAnchor: [18, 18],
         });
 
         const newTarget = L.marker([targetCoords.lat, targetCoords.lon], {
@@ -254,27 +281,25 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
           zIndexOffset: 1000,
         }).addTo(map);
 
-        newTarget.bindPopup(`
-          <div class="text-xs font-sans">
-            <div class="font-bold text-teal-300 flex items-center gap-1">
-              <span>🎯 Target Coordinate</span>
-            </div>
-            <div class="font-mono text-slate-300 mt-1">
-              ${targetCoords.lat.toFixed(4)}°N, ${targetCoords.lon.toFixed(4)}°E
-            </div>
-            <div class="text-[10px] text-slate-400 mt-1">
-              Ready for watershed telemetry analysis
-            </div>
-          </div>
-        `);
-
+        newTarget.bindPopup(popupHtml);
+        newTarget.openPopup();
         targetMarkerRef.current = newTarget;
       }
+
+      // Fly camera directly to searched location
+      map.flyTo([targetCoords.lat, targetCoords.lon], 13, { duration: 1.2 });
     } else if (targetMarkerRef.current) {
       map.removeLayer(targetMarkerRef.current);
       targetMarkerRef.current = null;
     }
-  }, [targetCoords]);
+  }, [targetCoords, targetLocationName, mapReady]);
+
+  // Fly camera to selected site when selectedSite changes
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !selectedSite || !mapReady) return;
+    map.flyTo([selectedSite.lat, selectedSite.lon], 14, { duration: 1.2 });
+  }, [selectedSite, mapReady]);
 
   // Reset View to sites or overview
   const handleResetView = () => {

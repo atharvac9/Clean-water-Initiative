@@ -43,6 +43,13 @@ export const LocationSearchInput: React.FC<LocationSearchInputProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Synchronize internal query state when initialQuery changes externally
+  useEffect(() => {
+    if (initialQuery !== undefined) {
+      setQuery(initialQuery);
+    }
+  }, [initialQuery]);
+
   // Debounced geocoding search using Nominatim
   useEffect(() => {
     const trimmed = query.trim();
@@ -111,6 +118,43 @@ export const LocationSearchInput: React.FC<LocationSearchInputProps> = ({
     onLocationSelect(loc);
   };
 
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (results.length > 0) {
+        handleSelect(results[0]);
+      } else if (query.trim().length >= 2) {
+        setIsSearching(true);
+        try {
+          const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            query.trim()
+          )}&limit=1&addressdetails=1`;
+          const res = await fetch(url, {
+            headers: { "Accept-Language": "en" },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.length > 0) {
+              const item = data[0];
+              const loc: GeocodedLocation = {
+                name: item.display_name.split(",")[0],
+                displayName: item.display_name,
+                lat: parseFloat(item.lat),
+                lon: parseFloat(item.lon),
+                type: item.type || item.class,
+              };
+              handleSelect(loc);
+            }
+          }
+        } catch (err) {
+          console.warn("Direct geocode search error:", err);
+        } finally {
+          setIsSearching(false);
+        }
+      }
+    }
+  };
+
   // Browser Geolocation
   const handleLocateMe = () => {
     if (!navigator.geolocation) {
@@ -176,6 +220,7 @@ export const LocationSearchInput: React.FC<LocationSearchInputProps> = ({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
           onFocus={() => {
             if (results.length > 0) setIsDropdownOpen(true);
           }}

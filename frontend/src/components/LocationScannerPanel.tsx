@@ -127,7 +127,10 @@ export const LocationScannerPanel: React.FC<LocationScannerPanelProps> = ({
               Back to Scanner
             </button>
           </div>
-          <LocationSearchInput onLocationSelect={onLocationSelect} />
+          <LocationSearchInput
+            onLocationSelect={onLocationSelect}
+            initialQuery={activeLocation?.name || ""}
+          />
         </div>
 
         {/* Existing Site Inspector */}
@@ -170,6 +173,7 @@ export const LocationScannerPanel: React.FC<LocationScannerPanelProps> = ({
           </label>
           <LocationSearchInput
             onLocationSelect={onLocationSelect}
+            initialQuery={activeLocation?.name || ""}
             placeholder="Type city, village, river (e.g. Pune, Godavari)..."
           />
         </div>

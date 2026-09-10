@@ -37,10 +37,7 @@ export default function DashboardPage() {
 
   // Ad-hoc scanner modal state
   const [scannerOpen, setScannerOpen] = useState(false);
-  const [targetCoords, setTargetCoords] = useState<{ lat: number; lon: number }>({
-    lat: 19.085,
-    lon: 74.75,
-  });
+  const [targetCoords, setTargetCoords] = useState<{ lat: number; lon: number } | null>(null);
 
   // Photo upload modal state
   const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
@@ -182,7 +179,10 @@ export default function DashboardPage() {
                   Scan Telemetry
                 </button>
                 <button
-                  onClick={() => setActiveSearchedPlace(null)}
+                  onClick={() => {
+                    setActiveSearchedPlace(null);
+                    setTargetCoords(null);
+                  }}
                   className="text-slate-400 hover:text-slate-700 hover:bg-teal-100/50 p-1 rounded-md transition-colors cursor-pointer"
                   title="Clear active search"
                 >
@@ -234,6 +234,7 @@ export default function DashboardPage() {
                 }}
                 onSelectCoords={handleSelectCoords}
                 targetCoords={targetCoords}
+                targetLocationName={activeSearchedPlace?.name}
               />
             </div>
           </div>
@@ -248,7 +249,10 @@ export default function DashboardPage() {
                 setSelectedSite(null);
                 setTargetCoords({ lat: loc.lat, lon: loc.lon });
               }}
-              onClearLocation={() => setActiveSearchedPlace(null)}
+              onClearLocation={() => {
+                setActiveSearchedPlace(null);
+                setTargetCoords(null);
+              }}
               onSiteSaved={handleSiteSaved}
               onUploadPhotoClick={() => setPhotoUploadOpen(true)}
               onClearSelectedSite={() => setSelectedSite(null)}
@@ -317,8 +321,8 @@ export default function DashboardPage() {
 
       {/* Ad-Hoc Scanner Modal */}
       <AdHocScannerModal
-        initialLat={targetCoords.lat}
-        initialLon={targetCoords.lon}
+        initialLat={targetCoords?.lat ?? 19.085}
+        initialLon={targetCoords?.lon ?? 74.75}
         isOpen={scannerOpen}
         onClose={() => setScannerOpen(false)}
         onSiteSaved={handleSiteSaved}
