@@ -158,7 +158,4 @@ async def delete_site(site_id: str, db: AsyncSession = Depends(get_db)):
     if site is None:
         raise HTTPException(status_code=404, detail="Site not found")
 
-    if site.is_seeded_demo:
-        raise HTTPException(status_code=403, detail="Cannot delete seeded demo sites")
-
     await db.delete(site)

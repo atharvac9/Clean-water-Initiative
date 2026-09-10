@@ -21,8 +21,8 @@ export const StatsBar: React.FC<StatsBarProps> = ({ sites, onSelectAnomaly }) =>
     .filter((score): score is number => score !== null && score !== undefined);
 
   const avgHealth = validScores.length
-    ? Math.round(validScores.reduce((a, b) => a + b, 0) / validScores.length)
-    : 78;
+    ? `${Math.round(validScores.reduce((a, b) => a + b, 0) / validScores.length)}`
+    : "--";
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

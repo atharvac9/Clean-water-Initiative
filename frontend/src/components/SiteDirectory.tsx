@@ -98,21 +98,32 @@ export const SiteDirectory: React.FC<SiteDirectoryProps> = ({ sites, onSelectSit
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60">
-            {filteredSites.map((site) => {
-              const analysis = site.latest_analysis;
-              const isAnomaly = analysis?.overall_status === "anomaly";
-              const isConfirmed = analysis?.overall_status === "confirmed";
+            {filteredSites.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="py-12 text-center text-slate-400 text-xs">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Filter className="w-6 h-6 text-slate-500" />
+                    <span className="font-medium text-slate-300">No watershed sites monitored yet</span>
+                    <span className="text-slate-500 max-w-sm">Scan coordinates on the tactical map or upload field photos to register your first watershed site.</span>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              filteredSites.map((site) => {
+                const analysis = site.latest_analysis;
+                const isAnomaly = analysis?.overall_status === "anomaly";
+                const isConfirmed = analysis?.overall_status === "confirmed";
 
-              return (
-                <tr
-                  key={site.id}
-                  onClick={() => onSelectSite(site)}
-                  className="hover:bg-slate-800/40 transition-colors cursor-pointer group"
-                >
-                  <td className="py-3 px-3 font-mono font-bold text-slate-100 flex items-center gap-2">
-                    <span>{site.id}</span>
-                    {site.is_seeded_demo && (
-                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-teal-500/10 text-teal-300 border border-teal-500/20 uppercase font-sans">
+                return (
+                  <tr
+                    key={site.id}
+                    onClick={() => onSelectSite(site)}
+                    className="hover:bg-slate-800/40 transition-colors cursor-pointer group"
+                  >
+                    <td className="py-3 px-3 font-mono font-bold text-slate-100 flex items-center gap-2">
+                      <span>{site.id}</span>
+                      {site.is_seeded_demo && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-teal-500/10 text-teal-300 border border-teal-500/20 uppercase font-sans">
                         Demo
                       </span>
                     )}
@@ -182,7 +193,7 @@ export const SiteDirectory: React.FC<SiteDirectoryProps> = ({ sites, onSelectSit
                   </td>
                 </tr>
               );
-            })}
+            }))}
           </tbody>
         </table>
       </div>

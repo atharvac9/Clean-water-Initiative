@@ -60,7 +60,9 @@ export const Globe3D: React.FC<Globe3DProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Rotation angles: pitch (lat) and yaw (lon)
-  const [rotation, setRotation] = useState({ yaw: 74.74, pitch: 19.08 }); // Centered on Ahmednagar
+  const [rotation, setRotation] = useState(
+    sites.length > 0 ? { yaw: sites[0].lon, pitch: sites[0].lat } : { yaw: 0, pitch: 20 }
+  );
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1.0);
@@ -408,8 +410,12 @@ export const Globe3D: React.FC<Globe3DProps> = ({
     }
   };
 
-  const resetToAhmednagar = () => {
-    setRotation({ yaw: 74.74, pitch: 19.08 });
+  const resetView = () => {
+    if (sites.length > 0) {
+      setRotation({ yaw: sites[0].lon, pitch: sites[0].lat });
+    } else {
+      setRotation({ yaw: 0, pitch: 20 });
+    }
     setZoom(1.0);
   };
 
@@ -432,12 +438,12 @@ export const Globe3D: React.FC<Globe3DProps> = ({
       {/* Control overlay */}
       <div className="absolute top-4 left-4 flex flex-col gap-2 z-30">
         <button
-          onClick={resetToAhmednagar}
+          onClick={resetView}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-950/90 backdrop-blur-md border border-slate-700/70 text-slate-200 text-xs hover:bg-slate-800 transition-all shadow-md"
-          title="Center on Ahmednagar Watershed Basin"
+          title="Center Globe"
         >
           <Compass className="w-3.5 h-3.5 text-teal-400" />
-          <span>Ahmednagar Basin</span>
+          <span>Center Globe</span>
         </button>
 
         <div className="flex items-center gap-1 bg-slate-950/90 backdrop-blur-md border border-slate-700/70 rounded-lg p-1 shadow-md">

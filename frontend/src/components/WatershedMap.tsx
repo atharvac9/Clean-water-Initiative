@@ -21,9 +21,11 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
   onSelectCoords,
   targetCoords,
 }) => {
-  // Center on Ahmednagar Basin (~19.05 N, 74.72 E)
-  const [center, setCenter] = useState({ lat: 19.08, lon: 74.74 });
-  const [zoom, setZoom] = useState(11);
+  // Initial center: first site if present, otherwise country/regional overview
+  const [center, setCenter] = useState(
+    sites.length > 0 ? { lat: sites[0].lat, lon: sites[0].lon } : { lat: 20.5937, lon: 78.9629 }
+  );
+  const [zoom, setZoom] = useState(sites.length > 0 ? 11 : 5);
   const [layerType, setLayerType] = useState<MapLayerType>("satellite");
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
@@ -231,8 +233,13 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
   };
 
   const resetToBasin = () => {
-    setCenter({ lat: 19.08, lon: 74.74 });
-    setZoom(11);
+    if (sites.length > 0) {
+      setCenter({ lat: sites[0].lat, lon: sites[0].lon });
+      setZoom(11);
+    } else {
+      setCenter({ lat: 20.5937, lon: 78.9629 });
+      setZoom(5);
+    }
   };
 
   return (
@@ -304,10 +311,10 @@ export const WatershedMap: React.FC<WatershedMapProps> = ({
             resetToBasin();
           }}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-950/90 backdrop-blur-md border border-slate-700/70 text-slate-200 text-xs hover:bg-slate-800 transition-all shadow-md"
-          title="Reset to Ahmednagar Watershed Basin"
+          title="Reset Map View"
         >
           <Compass className="w-3.5 h-3.5 text-teal-400" />
-          <span>Ahmednagar Basin</span>
+          <span>Reset View</span>
         </button>
 
         <div className="flex flex-col bg-slate-950/90 backdrop-blur-md border border-slate-700/70 rounded-lg p-1 shadow-md">

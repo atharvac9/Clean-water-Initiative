@@ -1,9 +1,1 @@
 site_id,lat,lon,date,activity_type,photo_filename,description
-S01,19.095,74.738,2024-06-15,check_dam,check_dam_01.jpg,Check dam across seasonal stream near Ahmednagar
-S02,19.140,74.685,2024-07-20,farm_pond,farm_pond_01.jpg,Farm pond for irrigation water harvesting
-S03,18.920,74.600,2024-05-10,plantation,plantation_01.jpg,Afforestation zone on degraded hillslope
-S04,19.200,74.800,2024-08-01,check_dam,check_dam_02.jpg,Gabion check dam at stream crossing
-S05,18.850,74.550,2024-06-25,water_body,water_body_01.jpg,Natural percolation reservoir
-S06,19.050,74.900,2024-07-15,farm_pond,degraded_land_anomaly.jpg,ANOMALY - Claims farm pond but site shows degraded barren land
-S07,19.300,74.650,2024-05-30,plantation,plantation_02.jpg,Contour plantation on hill slope
-S08,18.980,74.750,2024-08-10,degraded_land,degraded_land_01.jpg,Erosion-prone barren area awaiting intervention

@@ -102,37 +102,49 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                <span>Ahmednagar Basin Watershed Observatory</span>
+                <span>Watershed Intelligence Observatory</span>
               </h1>
               <p className="text-xs text-slate-400 mt-0.5">
                 Multi-source waterbody monitoring • Sentinel-2 Harmonized Surface Reflectance (NDVI/NDWI) • OpenCLIP Photo Auditing
               </p>
             </div>
 
-            {/* Quick Demo Jump Pills */}
+            {/* Quick Actions / Active Sites Pills */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[11px] text-slate-400 font-mono mr-1">Demo Cases:</span>
-              {sites.slice(0, 8).map((s) => {
-                const label = s.site_code || s.id.substring(0, 4);
-                return (
-                  <button
-                    key={s.id}
-                    onClick={() => {
-                      setSelectedSite(s);
-                      setActiveTab("map");
-                    }}
-                    className={`text-[11px] font-mono px-2.5 py-1 rounded-md border transition-all cursor-pointer ${
-                      selectedSite?.id === s.id
-                        ? "bg-teal-500/20 border-teal-500/60 text-teal-300 font-bold"
-                        : s.latest_analysis?.overall_status === "anomaly"
-                        ? "bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
-                        : "bg-slate-900/80 border-slate-800 text-slate-300 hover:bg-slate-800"
-                    }`}
-                  >
-                    {label} {s.latest_analysis?.overall_status === "anomaly" ? "⚠" : ""}
-                  </button>
-                );
-              })}
+              {sites.length > 0 ? (
+                <>
+                  <span className="text-[11px] text-slate-400 font-mono mr-1">Sites ({sites.length}):</span>
+                  {sites.slice(0, 8).map((s) => {
+                    const label = s.site_code || s.id.substring(0, 4);
+                    return (
+                      <button
+                        key={s.id}
+                        onClick={() => {
+                          setSelectedSite(s);
+                          setActiveTab("map");
+                        }}
+                        className={`text-[11px] font-mono px-2.5 py-1 rounded-md border transition-all cursor-pointer ${
+                          selectedSite?.id === s.id
+                            ? "bg-teal-500/20 border-teal-500/60 text-teal-300 font-bold"
+                            : s.latest_analysis?.overall_status === "anomaly"
+                            ? "bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
+                            : "bg-slate-900/80 border-slate-800 text-slate-300 hover:bg-slate-800"
+                        }`}
+                      >
+                        {label} {s.latest_analysis?.overall_status === "anomaly" ? "⚠" : ""}
+                      </button>
+                    );
+                  })}
+                </>
+              ) : (
+                <button
+                  onClick={() => setScannerOpen(true)}
+                  className="flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-lg bg-teal-600/20 border border-teal-500/40 text-teal-300 hover:bg-teal-600/30 transition-all cursor-pointer"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span>Scan New Coordinates</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -208,9 +220,21 @@ export default function Dashboard() {
                   onUploadPhotoClick={() => setPhotoUploadOpen(true)}
                 />
               ) : (
-                <div className="glass-panel rounded-2xl p-6 border border-slate-800 text-center text-slate-400 text-xs flex flex-col items-center justify-center min-h-[300px] gap-2">
-                  <Compass className="w-8 h-8 text-teal-500/60 animate-pulse" />
-                  <span>Select any point or site marker on the map to inspect telemetry</span>
+                <div className="glass-panel rounded-2xl p-6 border border-slate-800 text-center text-slate-400 text-xs flex flex-col items-center justify-center min-h-[360px] gap-3">
+                  <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-700/60 flex items-center justify-center text-teal-400">
+                    <Compass className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <div className="flex flex-col gap-1 max-w-xs">
+                    <span className="font-semibold text-slate-200 text-sm">No Site Selected</span>
+                    <span className="text-slate-400">Click anywhere on the map to inspect coordinates, or scan a new location using Sentinel-2 telemetry.</span>
+                  </div>
+                  <button
+                    onClick={() => setScannerOpen(true)}
+                    className="mt-2 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-teal-600 text-white text-xs font-medium hover:bg-teal-500 transition-all shadow-md cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Scan Coordinates</span>
+                  </button>
                 </div>
               )}
             </div>
