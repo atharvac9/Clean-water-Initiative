@@ -48,48 +48,88 @@ def extract_exif(image_bytes: bytes) -> dict:
         result["warnings"].append(f"Could not open image: {e}")
         return result
 
-    # Try to get EXIF data using Pillow's built-in
+    from PIL import ExifTags
+
+    # Try to get EXIF data using Pillow's built-in APIs
     exif_data = None
     try:
         exif_data = img._getexif()
     except (AttributeError, Exception):
         pass
 
-    if exif_data is None:
+    raw_exif = None
+    try:
+        raw_exif = img.getexif()
+    except (AttributeError, Exception):
+        pass
+
+    if exif_data is None and (raw_exif is None or len(raw_exif) == 0):
         result["warnings"].append(
             "No EXIF metadata found — photo may have been screenshot, "
-            "downloaded, or had metadata stripped"
+            "downloaded, or had metadata stripped by messaging/social platforms"
         )
         return result
 
     result["has_exif"] = True
+    if exif_data is None:
+        exif_data = dict(raw_exif)
 
     # ── Camera Model (tag 0x0110 = 272) ──────────────────────────────────
-    camera_model = exif_data.get(272)  # Tag.Model
+    camera_model = exif_data.get(272) or (raw_exif.get(272) if raw_exif else None)
+    if not camera_model and raw_exif:
+        camera_model = raw_exif.get(ExifTags.Base.Model) or raw_exif.get(ExifTags.Base.Make)
     if camera_model:
         result["has_camera_model"] = True
-        result["camera_model"] = str(camera_model).strip()
+        result["camera_model"] = str(camera_model).replace("\x00", "").strip()
     else:
         result["warnings"].append("No camera model in EXIF — may not be a direct camera photo")
 
     # ── Timestamp (tag 0x9003 = 36867 = DateTimeOriginal) ────────────────
     datetime_original = exif_data.get(36867)
     datetime_digitized = exif_data.get(36868)
-    datetime_basic = exif_data.get(306)  # DateTime
+    datetime_basic = exif_data.get(306)
+    if not (datetime_original or datetime_digitized or datetime_basic) and raw_exif:
+        datetime_basic = raw_exif.get(306) or raw_exif.get(ExifTags.Base.DateTime)
 
     capture_dt = datetime_original or datetime_digitized or datetime_basic
     if capture_dt:
         result["has_timestamp"] = True
-        result["capture_datetime"] = str(capture_dt).strip()
+        result["capture_datetime"] = str(capture_dt).replace("\x00", "").strip()
     else:
         result["warnings"].append("No capture timestamp in EXIF")
 
     # ── GPS (tag 0x8825 = 34853 = GPSInfo) ───────────────────────────────
-    gps_info = exif_data.get(34853)
+    gps_info = None
+    # Method A: from _getexif() dict
+    if isinstance(exif_data.get(34853), dict):
+        gps_info = exif_data.get(34853)
+    # Method B: from getexif().get_ifd(ExifTags.IFD.GPSInfo)
+    if not gps_info and raw_exif:
+        try:
+            if hasattr(ExifTags, "IFD") and hasattr(ExifTags.IFD, "GPSInfo"):
+                ifd_data = raw_exif.get_ifd(ExifTags.IFD.GPSInfo)
+                if ifd_data:
+                    gps_info = dict(ifd_data)
+        except Exception:
+            pass
+    if not gps_info and raw_exif:
+        try:
+            ifd_data = raw_exif.get_ifd(0x8825)
+            if ifd_data:
+                gps_info = dict(ifd_data)
+        except Exception:
+            pass
+
     if gps_info:
         try:
-            gps_lat = _convert_gps_to_decimal(gps_info.get(2), gps_info.get(1))
-            gps_lon = _convert_gps_to_decimal(gps_info.get(4), gps_info.get(3))
+            # Handle numeric tags (1=LatRef, 2=Lat, 3=LonRef, 4=Lon) or string keys
+            lat_ref = gps_info.get(1) or gps_info.get("GPSLatitudeRef")
+            lat_val = gps_info.get(2) or gps_info.get("GPSLatitude")
+            lon_ref = gps_info.get(3) or gps_info.get("GPSLongitudeRef")
+            lon_val = gps_info.get(4) or gps_info.get("GPSLongitude")
+
+            gps_lat = _convert_gps_to_decimal(lat_val, lat_ref)
+            gps_lon = _convert_gps_to_decimal(lon_val, lon_ref)
 
             if gps_lat is not None and gps_lon is not None:
                 result["has_gps"] = True
@@ -104,7 +144,7 @@ def extract_exif(image_bytes: bytes) -> dict:
             result["warnings"].append("GPS tag present but malformed")
     else:
         result["warnings"].append(
-            "No GPS coordinates in EXIF — cannot verify photo was taken at claimed location"
+            "No GPS coordinates found in image EXIF. Camera location tagging may be disabled in device settings, or photo was downloaded/shared without metadata."
         )
 
     # Try piexif for more detailed extraction if available
@@ -128,13 +168,12 @@ def extract_exif(image_bytes: bytes) -> dict:
                     result["has_gps"] = True
                     result["gps_lat"] = round(lat, 6)
                     result["gps_lon"] = round(lon, 6)
-                    # Remove the "no GPS" warning if we just found it
                     result["warnings"] = [
                         w for w in result["warnings"]
                         if "No GPS coordinates" not in w
                     ]
     except ImportError:
-        pass  # piexif not installed — Pillow-only extraction is fine
+        pass
     except Exception as e:
         logger.debug(f"piexif extraction failed (non-critical): {e}")
 
@@ -158,11 +197,18 @@ def _convert_gps_to_decimal(
                 return float(val[0]) / float(val[1]) if val[1] else 0.0
             return float(val)
 
-        degrees = _to_float(dms_tuple[0])
-        minutes = _to_float(dms_tuple[1])
-        seconds = _to_float(dms_tuple[2])
-
-        decimal = degrees + minutes / 60 + seconds / 3600
+        # Handle single float, 1-tuple, 2-tuple, or standard 3-tuple (deg, min, sec)
+        if isinstance(dms_tuple, (int, float)):
+            decimal = float(dms_tuple)
+        elif len(dms_tuple) == 1:
+            decimal = _to_float(dms_tuple[0])
+        elif len(dms_tuple) == 2:
+            decimal = _to_float(dms_tuple[0]) + _to_float(dms_tuple[1]) / 60.0
+        else:
+            degrees = _to_float(dms_tuple[0])
+            minutes = _to_float(dms_tuple[1])
+            seconds = _to_float(dms_tuple[2])
+            decimal = degrees + minutes / 60.0 + seconds / 3600.0
 
         ref_str = ref if isinstance(ref, str) else ref.decode("utf-8", errors="ignore")
         if ref_str.upper() in ("S", "W"):

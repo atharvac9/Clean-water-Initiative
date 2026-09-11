@@ -18,11 +18,20 @@ class PhotoResponse(BaseModel):
     content_type: str = "image/jpeg"
     file_size_bytes: Optional[int] = None
 
-    # EXIF
+    # EXIF (nested object + flat convenience fields for client compatibility)
     exif: Optional[ExifInfo] = None
+    exif_has_gps: bool = False
+    exif_lat: Optional[float] = None
+    exif_lon: Optional[float] = None
+    exif_camera: Optional[str] = None
+    exif_timestamp: Optional[str] = None
+    exif_warnings: list[str] = []
 
-    # Classification
+    # Classification (nested object + flat convenience fields for client compatibility)
     classified: bool = False
+    predicted_class: Optional[str] = None
+    classification_confidence: Optional[float] = None
+    all_scores: Optional[dict[str, float]] = None
     classification: Optional[ClassificationResult] = None
 
     uploaded_by: Optional[str] = None

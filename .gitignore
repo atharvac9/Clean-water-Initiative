@@ -20,6 +20,7 @@ dist/
 *.sqlite3
 cache/*
 temp/
+backend/data/
 
 # Node / Next.js
 node_modules/

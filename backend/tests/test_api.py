@@ -121,3 +121,45 @@ def test_adhoc_analysis_graceful_handling(client):
         data = resp.json()
         assert "site_id" in data
         assert "mode" in data
+
+
+def test_photo_upload_and_geotag(client):
+    """Test photo upload with client geotag and subsequent patch."""
+    import io
+    from PIL import Image
+
+    # Create a site
+    site_payload = {
+        "lat": 19.9975,
+        "lon": 73.7898,
+        "activity_type": "check_dam",
+        "description": "Test Site for Photo Upload",
+    }
+    site_res = client.post("/api/sites", json=site_payload)
+    assert site_res.status_code == 201
+    site_id = site_res.json()["id"]
+
+    # Create dummy image in memory
+    img = Image.new("RGB", (64, 64), color="blue")
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG")
+    buf.seek(0)
+
+    # Upload with client_lat and client_lon
+    files = {"file": ("test_photo.jpg", buf, "image/jpeg")}
+    data = {"client_lat": "19.9975", "client_lon": "73.7898"}
+    upload_res = client.post(f"/api/photos/{site_id}", files=files, data=data)
+    assert upload_res.status_code == 201
+    photo_data = upload_res.json()
+    assert photo_data["exif_has_gps"] is True
+    assert photo_data["exif_lat"] == 19.9975
+    assert photo_data["exif_lon"] == 73.7898
+    assert photo_data["predicted_class"] == "check_dam"
+
+    # Patch geotag
+    photo_id = photo_data["id"]
+    patch_res = client.patch(f"/api/photos/{photo_id}/geotag", data={"lat": "20.0001", "lon": "73.8000"})
+    assert patch_res.status_code == 200
+    patched_data = patch_res.json()
+    assert patched_data["exif_lat"] == 20.0001
+    assert patched_data["exif_lon"] == 73.8
