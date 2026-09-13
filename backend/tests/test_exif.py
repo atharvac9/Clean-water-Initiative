@@ -108,3 +108,40 @@ class TestExifExtraction:
         result = extract_exif(image_bytes)
         if result["has_exif"]:
             assert result["has_timestamp"] is True
+
+    def test_parse_coordinates_from_text(self):
+        """Coordinate parsing from OCR strings handles various GPS watermark formats."""
+        from app.services.exif_checker import _parse_coordinates_from_text
+
+        # GPS Map camera format with degree as zero/omitted
+        assert _parse_coordinates_from_text("Lat 18.5543750 Long 73.961460") == (18.554375, 73.96146)
+        # UK negative longitude
+        assert _parse_coordinates_from_text("Lat 51.501364° Long -0.141890°") == (51.501364, -0.14189)
+        # Degrees Minutes Seconds
+        assert _parse_coordinates_from_text("51°30'26\"N 0°07'39\"W") == (51.507222, -0.1275)
+        # Directional decimal
+        assert _parse_coordinates_from_text("51.5074° N, 0.1278° W") == (51.5074, -0.1278)
+        # GPS prefix
+        assert _parse_coordinates_from_text("GPS: 51.5074, -0.1278") == (51.5074, -0.1278)
+
+    def test_extract_camera_app(self):
+        """Camera app name is extracted from watermark overlay."""
+        from app.services.exif_checker import _extract_camera_app
+
+        assert _extract_camera_app("Google GPS Map Camera Pune") == "GPS Map Camera"
+        assert _extract_camera_app("Solocator Watermark") == "Solocator"
+        assert _extract_camera_app("Random text") is None
+
+    def test_extract_address_query_uk(self):
+        """UK address line is prioritized in OCR text."""
+        from app.services.exif_checker import _extract_address_query
+
+        text = (
+            "GPS Map Camera\n"
+            "Westminster, London, United Kingdom\n"
+            "Parliament Square, London, SW1A 0AA, UK\n"
+            "Friday, 11/09/2026 01:32 PM GMT +01:00"
+        )
+        q = _extract_address_query(text)
+        assert q is not None
+        assert "London" in q or "United Kingdom" in q or "UK" in q

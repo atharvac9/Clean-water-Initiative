@@ -270,8 +270,8 @@ export const FieldUploadView: React.FC<FieldUploadViewProps> = ({ sites, onPhoto
                 <span>Geotag:</span>
                 <span className={result.exif_has_gps ? "text-emerald-700 font-bold" : "text-amber-700 font-medium"}>
                   {result.exif_has_gps
-                    ? `✓ ${result.exif_lat?.toFixed(4)}°N, ${result.exif_lon?.toFixed(4)}°E`
-                    : "No GPS geotag in EXIF"}
+                    ? `✓ ${result.exif_lat !== null && result.exif_lat !== undefined ? `${Math.abs(result.exif_lat).toFixed(4)}°${result.exif_lat >= 0 ? "N" : "S"}` : ""}, ${result.exif_lon !== null && result.exif_lon !== undefined ? `${Math.abs(result.exif_lon).toFixed(4)}°${result.exif_lon >= 0 ? "E" : "W"}` : ""}`
+                    : "No GPS geotag present"}
                 </span>
               </div>
 
