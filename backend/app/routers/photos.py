@@ -91,29 +91,14 @@ async def upload_photo(
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-    # 5. Run CLIP classification on the REAL image
+    # 5. Run real computer vision classification on the actual image pixels
     classification = None
     try:
         classification = await classifier.classify_photo_from_bytes(image_bytes)
     except Exception as e:
-        logger.warning(f"CLIP model offline or uninstalled ({e}), using deterministic visual typology")
-        import hashlib
-        h = int(hashlib.md5(image_bytes[:2048] if len(image_bytes) >= 2048 else image_bytes).hexdigest(), 16)
-        target_class = site.activity_type or "check_dam"
-        conf = round(0.88 + (h % 90) / 1000.0, 4)
-        all_classes = ["check_dam", "farm_pond", "plantation", "contour_trench", "percolation_tank", "degraded_land"]
-        rem = round(1.0 - conf, 4)
-        scores = {}
-        for c in all_classes:
-            if c == target_class:
-                scores[c] = conf
-            else:
-                scores[c] = round(rem / (len(all_classes) - 1), 4)
-        classification = {
-            "predicted_class": target_class,
-            "confidence": conf,
-            "all_scores": scores,
-        }
+        logger.error(f"Visual classification error: {e}", exc_info=True)
+        # Do not fabricate high-confidence false matches; leave unclassified or record error
+        classification = None
 
     # 6. Persist photo record
     photo = Photo(

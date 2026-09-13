@@ -60,34 +60,8 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
       setResult(uploaded);
       onPhotoUploaded(uploaded);
     } catch (err: any) {
-      console.warn("Backend upload error, using local verified simulation:", err);
-      const simulated: Photo = {
-        id: "photo-" + Date.now(),
-        site_id: site.id,
-        file_path: "simulated/" + selectedFile.name,
-        public_url: previewUrl,
-        file_size_bytes: selectedFile.size,
-        mime_type: selectedFile.type,
-        original_filename: selectedFile.name,
-        predicted_class: site.activity_type || "check_dam",
-        classification_confidence: 0.914,
-        all_scores: {
-          check_dam: 0.914,
-          farm_pond: 0.045,
-          plantation: 0.021,
-          contour_trench: 0.012,
-          degraded_land: 0.008,
-        },
-        exif_camera: "Digital Camera Sensor",
-        exif_timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
-        exif_lat: site.lat,
-        exif_lon: site.lon,
-        exif_has_gps: true,
-        exif_warnings: [],
-        created_at: new Date().toISOString(),
-      };
-      setResult(simulated);
-      onPhotoUploaded(simulated);
+      console.error("Photo upload error:", err);
+      setError(err?.response?.data?.detail || err?.message || "Failed to upload photo. Please check the backend connection.");
     } finally {
       setIsUploading(false);
     }

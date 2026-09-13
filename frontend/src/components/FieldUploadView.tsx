@@ -17,6 +17,7 @@ export const FieldUploadView: React.FC<FieldUploadViewProps> = ({ sites, onPhoto
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isGeotagging, setIsGeotagging] = useState<boolean>(false);
   const [result, setResult] = useState<Photo | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const currentSite = sites.find((s) => s.id === selectedSiteId) || sites[0];
 
@@ -26,46 +27,22 @@ export const FieldUploadView: React.FC<FieldUploadViewProps> = ({ sites, onPhoto
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
       setResult(null);
+      setError(null);
     }
   };
 
   const handleUpload = async () => {
     if (!selectedFile || !currentSite) return;
     setIsUploading(true);
+    setError(null);
 
     try {
       const photo = await uploadSitePhoto(currentSite.id, selectedFile);
       setResult(photo);
       onPhotoUploaded(photo);
-    } catch {
-      // Simulate client-side CLIP & EXIF result if backend is offline
-      const simulated: Photo = {
-        id: "photo-" + Date.now(),
-        site_id: currentSite.id,
-        file_path: "simulated/" + selectedFile.name,
-        public_url: previewUrl,
-        file_size_bytes: selectedFile.size,
-        mime_type: selectedFile.type,
-        original_filename: selectedFile.name,
-        predicted_class: currentSite.activity_type || "check_dam",
-        classification_confidence: 0.932,
-        all_scores: {
-          check_dam: 0.932,
-          farm_pond: 0.038,
-          plantation: 0.015,
-          contour_trench: 0.009,
-          degraded_land: 0.006,
-        },
-        exif_camera: "Digital Camera Sensor",
-        exif_timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
-        exif_lat: currentSite.lat,
-        exif_lon: currentSite.lon,
-        exif_has_gps: true,
-        exif_warnings: [],
-        created_at: new Date().toISOString(),
-      };
-      setResult(simulated);
-      onPhotoUploaded(simulated);
+    } catch (err: any) {
+      console.error("Photo upload error:", err);
+      setError(err?.response?.data?.detail || err?.message || "Failed to upload photo. Please verify backend connection.");
     } finally {
       setIsUploading(false);
     }
@@ -210,6 +187,13 @@ export const FieldUploadView: React.FC<FieldUploadViewProps> = ({ sites, onPhoto
             <Sparkles className="w-4 h-4" />
             <span>{isUploading ? "Running AI Classification & Metadata Audit..." : "Analyze Photograph"}</span>
           </button>
+        )}
+
+        {error && (
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+            <span>{error}</span>
+          </div>
         )}
       </div>
 

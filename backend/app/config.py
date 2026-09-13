@@ -60,6 +60,7 @@ class Settings(BaseSettings):
         "a photograph of a tree plantation or afforestation area with rows of planted trees",
         "a photograph of degraded barren land with soil erosion and no vegetation",
         "a photograph of a water body such as a lake reservoir or large pond",
+        "a photograph of an urban built-up area, college campus, sports ground, building, or road",
     ]
     class_names: list[str] = [
         "check_dam",
@@ -67,6 +68,7 @@ class Settings(BaseSettings):
         "plantation",
         "degraded_land",
         "water_body",
+        "urban_built_up",
     ]
 
     # ── Cross-Validation Rules ───────────────────────────────────────────────
@@ -97,6 +99,12 @@ class Settings(BaseSettings):
             "ndwi_min": -0.05,
         },
         "degraded_land": {
+            "ndvi_trend": "low",
+            "ndwi_trend": "low",
+            "ndvi_min": -0.30,
+            "ndwi_min": -0.30,
+        },
+        "urban_built_up": {
             "ndvi_trend": "low",
             "ndwi_trend": "low",
             "ndvi_min": -0.30,
