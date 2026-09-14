@@ -2,8 +2,8 @@
 
 import React, { useState, useRef } from "react";
 import { Site, Photo } from "../lib/types";
-import { uploadSitePhoto, updatePhotoGeotag } from "../lib/api";
-import { Camera, Upload, CheckCircle2, AlertTriangle, ShieldCheck, MapPin, Navigation, Image as ImageIcon, Loader2 } from "lucide-react";
+import { uploadSitePhoto, updatePhotoGeotag, auditPhotoAuto, AutoAuditResult, getReportDownloadUrl } from "../lib/api";
+import { Camera, Upload, CheckCircle2, AlertTriangle, ShieldCheck, MapPin, Navigation, Image as ImageIcon, Loader2, FileDown, Sparkles } from "lucide-react";
 
 interface PhotoUploadModalProps {
   site: Site;
@@ -23,6 +23,7 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isGeotagging, setIsGeotagging] = useState<boolean>(false);
   const [result, setResult] = useState<Photo | null>(null);
+  const [auditResult, setAuditResult] = useState<AutoAuditResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -35,6 +36,7 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
       setResult(null);
+      setAuditResult(null);
       setError(null);
     }
   };
@@ -46,6 +48,7 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
       setResult(null);
+      setAuditResult(null);
       setError(null);
     }
   };
@@ -56,12 +59,25 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
     setError(null);
 
     try {
-      const uploaded = await uploadSitePhoto(site.id, selectedFile);
-      setResult(uploaded);
-      onPhotoUploaded(uploaded);
+      // Direct auto-audit: uploads photo, parses EXIF, runs AI, and syncs satellite imagery
+      const autoRes = await auditPhotoAuto(selectedFile, {
+        siteId: site.id,
+        claimed_activity_type: site.activity_type || undefined,
+        bufferRadiusM: site.buffer_radius_m,
+      });
+      setResult(autoRes.photo);
+      setAuditResult(autoRes);
+      onPhotoUploaded(autoRes.photo);
     } catch (err: any) {
-      console.error("Photo upload error:", err);
-      setError(err?.response?.data?.detail || err?.message || "Failed to upload photo. Please check the backend connection.");
+      // Fallback to standard photo upload
+      try {
+        const uploaded = await uploadSitePhoto(site.id, selectedFile);
+        setResult(uploaded);
+        onPhotoUploaded(uploaded);
+      } catch (fallbackErr: any) {
+        console.error("Photo upload error:", fallbackErr);
+        setError(fallbackErr?.response?.data?.detail || fallbackErr?.message || "Failed to upload photo. Please check the backend connection.");
+      }
     } finally {
       setIsUploading(false);
     }
@@ -317,9 +333,71 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
               )}
             </div>
 
+            {/* Synchronized Satellite Telemetry & Cross-Validation Audit */}
+            {auditResult && (
+              <div className="bg-white rounded-lg p-3.5 border border-slate-200 text-xs flex flex-col gap-2 font-mono shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-teal-800 font-bold text-[11px]">
+                    <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                    <span>Synchronized Satellite Telemetry</span>
+                  </div>
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      auditResult.cross_validation.overall_status === "confirmed"
+                        ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                        : auditResult.cross_validation.overall_status === "anomaly"
+                        ? "bg-rose-50 text-rose-800 border-rose-200"
+                        : "bg-amber-50 text-amber-800 border-amber-200"
+                    }`}
+                  >
+                    {auditResult.cross_validation.overall_status?.toUpperCase()}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
+                  <div className="bg-slate-50 p-2 rounded-lg border border-slate-100 flex justify-between">
+                    <span className="text-slate-500">Sentinel-2 NDVI:</span>
+                    <span className="font-bold text-emerald-700">
+                      {auditResult.satellite_data.ndvi_tnow?.toFixed(3) || "N/A"}
+                    </span>
+                  </div>
+                  <div className="bg-slate-50 p-2 rounded-lg border border-slate-100 flex justify-between">
+                    <span className="text-slate-500">Sentinel-2 NDWI:</span>
+                    <span className="font-bold text-sky-700">
+                      {auditResult.satellite_data.ndwi_tnow?.toFixed(3) || "N/A"}
+                    </span>
+                  </div>
+                </div>
+
+                {auditResult.cross_validation.flags?.length > 0 && (
+                  <div className="bg-rose-50 p-2 rounded-lg border border-rose-200 text-[10px] text-rose-800 font-sans">
+                    <span className="font-bold">Audit Flags: </span>
+                    {auditResult.cross_validation.flags.join("; ")}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-[11px]">
+                  <span>Health Score:</span>
+                  <span className="font-bold text-slate-900">
+                    {auditResult.health_score.score} (Grade {auditResult.health_score.grade})
+                  </span>
+                </div>
+
+                <a
+                  href={getReportDownloadUrl(site.id)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-1.5 py-2 mt-1 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 font-semibold text-xs border border-teal-200 transition-all"
+                >
+                  <FileDown className="w-3.5 h-3.5" />
+                  <span>Download Official PDF Verification Report</span>
+                </a>
+              </div>
+            )}
+
             <button
               onClick={onClose}
-              className="w-full py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs"
+              className="w-full py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs cursor-pointer"
             >
               Done & Return to Site
             </button>

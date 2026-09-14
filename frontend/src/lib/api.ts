@@ -336,3 +336,73 @@ export async function fetchSitePhotos(siteId: string): Promise<Photo[]> {
 export function getReportDownloadUrl(siteId: string): string {
   return `${API_BASE}/reports/${siteId}/pdf`;
 }
+
+export interface AutoAuditResult {
+  site: Site;
+  photo: Photo;
+  analysis: AnalysisResult;
+  cross_validation: {
+    satellite_agreement: boolean | null;
+    photo_agreement: boolean | null;
+    overall_status: "confirmed" | "anomaly" | "inconclusive";
+    flags: string[];
+    confidence: number;
+  };
+  health_score: {
+    score: number;
+    grade: string;
+    mode: string;
+    components: Record<string, number>;
+  };
+  satellite_data: any;
+  report_download_url: string;
+}
+
+export async function auditPhotoAuto(
+  file: File,
+  options?: {
+    claimed_activity_type?: string;
+    clientCoords?: { lat: number; lon: number };
+    siteId?: string;
+    siteName?: string;
+    bufferRadiusM?: number;
+  }
+): Promise<AutoAuditResult> {
+  const formData = new FormData();
+  formData.append("file", file);
+  if (options?.claimed_activity_type) {
+    formData.append("claimed_activity_type", options.claimed_activity_type);
+  }
+  if (options?.clientCoords) {
+    formData.append("client_lat", String(options.clientCoords.lat));
+    formData.append("client_lon", String(options.clientCoords.lon));
+  }
+  if (options?.siteId) {
+    formData.append("site_id", options.siteId);
+  }
+  if (options?.siteName) {
+    formData.append("site_name", options.siteName);
+  }
+  if (options?.bufferRadiusM) {
+    formData.append("buffer_radius_m", String(options.bufferRadiusM));
+  }
+
+  const res = await fetch(`${API_BASE}/photos/auto-audit`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Auto-audit failed" }));
+    throw new Error(err.detail || "Auto-audit failed");
+  }
+
+  const data = await res.json();
+  return {
+    ...data,
+    photo: normalizePhoto(data.photo),
+    site: data.site,
+    analysis: data.analysis,
+  };
+}
+
