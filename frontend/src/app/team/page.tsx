@@ -8,96 +8,113 @@ import {
   Compass,
   ShieldCheck,
   Droplets,
-  Cpu,
   ArrowRight,
-  Mail,
-  ExternalLink,
-  Award,
   Globe2,
+  UserPlus,
+  Tag,
 } from "lucide-react";
 
-interface TeamMember {
+interface TeamMemberSlot {
+  id: number;
+  slotNumber: string;
   name: string;
   role: string;
   area: string;
-  avatarBg: string;
-  initials: string;
   bio: string;
   skills: string[];
 }
 
-const teamMembers: TeamMember[] = [
+// 6 empty slots for teammates to fill in their details
+const teamSlots: TeamMemberSlot[] = [
   {
-    name: "Dr. Rajesh Kulkarni",
-    role: "Project Director & Lead Geospatial Architect",
-    area: "Geospatial Systems & Remote Sensing",
-    avatarBg: "bg-teal-600 text-white",
-    initials: "RK",
-    bio: "Specializes in earth observation pipelines and spatial data infrastructure. Leads the architecture integrating multi-spectral telemetry with real-time browser GIS engines.",
-    skills: ["Multi-Spectral GIS", "Leaflet GIS", "FastAPI", "Next.js", "Spatial Telemetry"],
+    id: 1,
+    slotNumber: "Slot 01",
+    name: "",
+    role: "",
+    area: "",
+    bio: "",
+    skills: [],
   },
   {
-    name: "Dr. Ananya Deshmukh",
-    role: "Lead Hydrologist & Earth Observation Scientist",
-    area: "Hydrological Modeling & Environmental Indices",
-    avatarBg: "bg-sky-600 text-white",
-    initials: "AD",
-    bio: "Expert in arid and semi-arid watershed hydrology. Designed the dual NDVI/NDWI seasonal delta models that evaluate soil moisture retention and check-dam water storage capacity.",
-    skills: ["Remote Sensing", "NDWI / NDVI Modeling", "Watershed Hydrology", "Drought Analytics"],
+    id: 2,
+    slotNumber: "Slot 02",
+    name: "",
+    role: "",
+    area: "",
+    bio: "",
+    skills: [],
   },
   {
-    name: "Vikramaditya Shinde",
-    role: "Machine Learning & Vision-Language Engineer",
-    area: "Deep Learning & Forensic AI",
-    avatarBg: "bg-indigo-600 text-white",
-    initials: "VS",
-    bio: "Pioneered the OpenCLIP zero-shot classifier and hardware EXIF verification pipeline, enabling instant automated validation of on-ground photographs against claimed civil interventions.",
-    skills: ["OpenCLIP Vision", "EXIF Forensics", "Zero-Shot Classifiers", "PyTorch", "Python"],
+    id: 3,
+    slotNumber: "Slot 03",
+    name: "",
+    role: "",
+    area: "",
+    bio: "",
+    skills: [],
   },
   {
-    name: "Pooja Patil",
-    role: "Field Verification & Community Impact Specialist",
-    area: "Field Auditing & Citizen Hydrology",
-    avatarBg: "bg-emerald-600 text-white",
-    initials: "PP",
-    bio: "Coordinates ground-truth data acquisition with village watershed committees and local NGOs. Oversees the audit compliance checklists and verifiable PDF certification standards.",
-    skills: ["Ground-Truth Audits", "Community Hydrology", "ISO Compliance", "Field Verification"],
+    id: 4,
+    slotNumber: "Slot 04",
+    name: "",
+    role: "",
+    area: "",
+    bio: "",
+    skills: [],
+  },
+  {
+    id: 5,
+    slotNumber: "Slot 05",
+    name: "",
+    role: "",
+    area: "",
+    bio: "",
+    skills: [],
+  },
+  {
+    id: 6,
+    slotNumber: "Slot 06",
+    name: "",
+    role: "",
+    area: "",
+    bio: "",
+    skills: [],
   },
 ];
 
 export default function TeamPage() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-teal-600 selection:text-white">
+    <div className="min-h-screen bg-strata text-basalt flex flex-col selection:bg-reservoir selection:text-white font-body">
       {/* Top Navigation */}
       <Navbar />
 
       {/* Hero Header */}
-      <section className="bg-white border-b border-slate-200 py-16 px-4 sm:px-6 lg:px-8">
+      <section className="bg-white border-b border-strata-dark py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-semibold mb-4">
-            <Users className="w-3.5 h-3.5 text-teal-600" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-reservoir-subtle border border-reservoir/20 text-reservoir-dark text-xs font-semibold mb-4">
+            <Users className="w-3.5 h-3.5 text-reservoir" />
             <span>Multidisciplinary Engineering & Science Team</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900">
-            Pioneering Open, Verifiable Watershed Intelligence
+          <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-basalt">
+            Core Project Contributors & Researchers
           </h1>
 
-          <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed">
-            We are hydrologists, geospatial software engineers, and machine learning researchers dedicated to eliminating ghost water conservation projects through multi-spectral telemetry and ground-truth AI.
+          <p className="mt-4 text-base sm:text-lg text-basalt-muted max-w-2xl leading-relaxed">
+            NeerDrishti brings together hydrologists, geospatial engineers, and machine learning researchers dedicated to open, verifiable watershed telemetry.
           </p>
 
           <div className="mt-8 flex items-center gap-3">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-medium text-sm transition-all shadow-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-reservoir hover:bg-reservoir-dark text-white font-medium text-sm transition-all shadow-xs"
             >
               <Compass className="w-4 h-4" />
               <span>Launch Dashboard</span>
             </Link>
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium text-sm transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-strata-light hover:bg-strata border border-strata-dark text-basalt font-medium text-sm transition-all"
             >
               <span>Back to Home</span>
             </Link>
@@ -105,95 +122,165 @@ export default function TeamPage() {
         </div>
       </section>
 
-      {/* Core Team Section */}
+      {/* Team Slots Section */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-14 flex flex-col gap-14">
         <div>
           <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Core Engineering & Research Team</h2>
-            <p className="text-sm text-slate-500 mt-2">
-              Combining orbital mechanics, computer vision, and soil hydrology to bring absolute transparency to global water security.
+            <div className="inline-block px-2.5 py-0.5 rounded-full bg-strata-light border border-strata-dark text-[11px] font-semibold text-basalt-muted uppercase tracking-wider mb-2">
+              Team Roster • 6 Positions
+            </div>
+            <h2 className="font-heading text-2xl font-bold tracking-tight text-basalt">
+              Team Members & Roles
+            </h2>
+            <p className="text-sm text-basalt-muted mt-2">
+              Teammates can fill in their names, roles, focus areas, and domains below.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {teamMembers.map((member) => (
-              <div
-                key={member.name}
-                className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between gap-5"
-              >
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-xs ${member.avatarBg}`}
-                  >
-                    {member.initials}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {teamSlots.map((slot) => {
+              const hasName = Boolean(slot.name && slot.name.trim().length > 0);
+              const hasRole = Boolean(slot.role && slot.role.trim().length > 0);
+              const hasArea = Boolean(slot.area && slot.area.trim().length > 0);
+              const hasBio = Boolean(slot.bio && slot.bio.trim().length > 0);
+              const hasSkills = Boolean(slot.skills && slot.skills.length > 0);
+
+              const initials = hasName
+                ? slot.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase()
+                : null;
+
+              return (
+                <div
+                  key={slot.id}
+                  className={`bg-white rounded-xl border ${
+                    hasName
+                      ? "border-strata-dark"
+                      : "border-dashed border-slate-300 hover:border-reservoir/50"
+                  } p-6 shadow-2xs transition-all flex flex-col justify-between gap-5 relative group`}
+                >
+                  {/* Top Badge & Slot Tag */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-strata text-basalt-muted border border-strata-dark">
+                      {slot.slotNumber}
+                    </span>
+                    <span
+                      className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                        hasName
+                          ? "bg-canopy/10 text-canopy border border-canopy/20"
+                          : "bg-alluvial/15 text-alluvial border border-alluvial/30"
+                      }`}
+                    >
+                      {hasName ? "Active Member" : "Slot Open"}
+                    </span>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900">{member.name}</h3>
-                    <p className="text-xs font-semibold text-teal-700">{member.role}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{member.area}</p>
+
+                  {/* Header: Avatar + Name/Role */}
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`w-13 h-13 rounded-xl flex items-center justify-center font-heading font-bold text-base flex-shrink-0 ${
+                        hasName
+                          ? "bg-reservoir text-white shadow-xs"
+                          : "bg-strata-light border border-dashed border-slate-300 text-basalt-muted"
+                      }`}
+                    >
+                      {initials ? initials : <UserPlus className="w-5 h-5 text-basalt-muted/60" />}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-heading text-base font-bold text-basalt truncate">
+                        {hasName ? slot.name : "Teammate Name"}
+                      </h3>
+                      <p className="text-xs font-semibold text-reservoir truncate mt-0.5">
+                        {hasRole ? slot.role : "Role / Position TBD"}
+                      </p>
+                      <p className="text-[11px] text-basalt-muted truncate mt-0.5">
+                        {hasArea ? slot.area : "Domain / Focus Area"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Bio */}
+                  <p className="text-xs text-basalt-muted leading-relaxed min-h-[48px]">
+                    {hasBio
+                      ? slot.bio
+                      : "Details, background expertise, and project responsibilities can be added here for this teammate slot."}
+                  </p>
+
+                  {/* Skills / Key Domains */}
+                  <div className="pt-3 border-t border-strata-dark">
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-basalt-muted mb-2 flex items-center gap-1.5">
+                      <Tag className="w-3 h-3 text-basalt-muted/60" />
+                      <span>Key Domains / Stack</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 min-h-[26px]">
+                      {hasSkills ? (
+                        slot.skills.map((skill) => (
+                          <span
+                            key={skill}
+                            className="text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-strata text-basalt border border-strata-dark"
+                          >
+                            {skill}
+                          </span>
+                        ))
+                      ) : (
+                        <>
+                          <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-strata-light text-basalt-muted/70 border border-dashed border-slate-300">
+                            + Add Skill 1
+                          </span>
+                          <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-strata-light text-basalt-muted/70 border border-dashed border-slate-300">
+                            + Add Skill 2
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {member.bio}
-                </p>
-
-                <div className="pt-3 border-t border-slate-100">
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                    Key Technical Domains
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {member.skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="text-[11px] font-medium px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         {/* Guiding Principles */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 sm:p-10 shadow-xs">
+        <div className="bg-white rounded-xl border border-strata-dark p-8 sm:p-10 shadow-xs">
           <div className="max-w-2xl">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Our Core Principles</h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            <h2 className="font-heading text-xl sm:text-2xl font-bold text-basalt">Our Core Principles</h2>
+            <p className="text-xs sm:text-sm text-basalt-muted mt-1">
               Engineered from first principles to guarantee scientific reproducibility and audit accountability.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
             <div className="flex flex-col gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600">
+              <div className="w-10 h-10 rounded-lg bg-reservoir-subtle border border-reservoir/20 flex items-center justify-center text-reservoir">
                 <Globe2 className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-slate-900">Open Public Telemetry</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <h3 className="font-heading text-sm font-bold text-basalt">Open Public Telemetry</h3>
+              <p className="text-xs text-basalt-muted leading-relaxed">
                 We rely strictly on publicly verifiable open telemetry data, ensuring any independent third party can verify calculations.
               </p>
             </div>
 
             <div className="flex flex-col gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
+              <div className="w-10 h-10 rounded-lg bg-sentinel/10 border border-sentinel/20 flex items-center justify-center text-sentinel">
                 <ShieldCheck className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-slate-900">Zero-Trust Cross-Auditing</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <h3 className="font-heading text-sm font-bold text-basalt">Zero-Trust Cross-Auditing</h3>
+              <p className="text-xs text-basalt-muted leading-relaxed">
                 Spectral vegetation and water index responses must corroborate on-ground photographic evidence to award certified verification.
               </p>
             </div>
 
             <div className="flex flex-col gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
+              <div className="w-10 h-10 rounded-lg bg-canopy/10 border border-canopy/20 flex items-center justify-center text-canopy">
                 <Droplets className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-slate-900">Impact-Centric Metrics</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <h3 className="font-heading text-sm font-bold text-basalt">Impact-Centric Metrics</h3>
+              <p className="text-xs text-basalt-muted leading-relaxed">
                 We measure outcomes (biomass health, moisture retention, surface water delta) rather than administrative paperwork or claimed expenditures.
               </p>
             </div>
@@ -201,16 +288,16 @@ export default function TeamPage() {
         </div>
 
         {/* Contact & Collaboration Banner */}
-        <div className="rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-700 text-white p-8 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
+        <div className="rounded-xl bg-gradient-to-r from-reservoir-dark via-reservoir to-canopy-dark text-white p-8 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
           <div className="flex flex-col gap-2 text-center sm:text-left">
-            <h3 className="text-xl sm:text-2xl font-bold">Collaborate With Our Research Team</h3>
-            <p className="text-xs sm:text-sm text-teal-100 max-w-xl">
+            <h3 className="font-heading text-xl sm:text-2xl font-bold">Collaborate With Our Research Team</h3>
+            <p className="text-xs sm:text-sm text-white/85 max-w-xl">
               Are you an NGO, watershed trust, government agency, or university interested in running verification pilot programs in your basin?
             </p>
           </div>
           <Link
             href="/dashboard"
-            className="px-6 py-3 rounded-xl bg-white text-teal-800 hover:bg-slate-100 font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 flex-shrink-0"
+            className="px-6 py-3 rounded-lg bg-white text-reservoir-dark hover:bg-strata-light font-semibold text-xs sm:text-sm transition-all shadow-xs flex items-center gap-2 flex-shrink-0"
           >
             <span>Explore Dashboard Live</span>
             <ArrowRight className="w-4 h-4" />
@@ -219,7 +306,7 @@ export default function TeamPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-8 px-4 text-center text-xs text-slate-500">
+      <footer className="border-t border-strata-dark bg-white py-8 px-4 text-center text-xs text-basalt-muted">
         <p>© 2026 NeerDrishti (नीरदृष्टी) • Watershed Intelligence Platform</p>
         <p className="mt-1">Powered by Multi-Spectral Telemetry & OpenCLIP Vision Models</p>
       </footer>

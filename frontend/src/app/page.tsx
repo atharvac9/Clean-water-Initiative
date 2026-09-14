@@ -1,294 +1,473 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Navbar } from "../components/Navbar";
+import { LocationSearchInput, GeocodedLocation } from "../components/LocationSearchInput";
 import {
-  LayoutDashboard,
+  ArrowDown,
   Camera,
-  ShieldCheck,
-  FileText,
-  ArrowRight,
-  CheckCircle2,
-  Droplets,
-  Users,
-  Activity,
-  MapPin,
+  Satellite,
+  FileCheck,
+  Shield,
+  Fingerprint,
+  Search,
+  ChevronRight,
 } from "lucide-react";
 
-export default function HomePage() {
+/* Dynamically load map — no SSR (Leaflet needs window) */
+const WatershedMap = dynamic(
+  () => import("../components/WatershedMap").then((mod) => mod.WatershedMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full rounded-lg bg-strata flex items-center justify-center">
+        <span className="text-sm text-basalt-light/50 font-body">Loading map…</span>
+      </div>
+    ),
+  }
+);
+
+/* ── NDVI Counter Animation ─────────────────────────────────── */
+function NdviCounter({ target = 0.718, duration = 2200 }: { target?: number; duration?: number }) {
+  const [value, setValue] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setValue(target);
+      return;
+    }
+    const start = performance.now();
+    let raf: number;
+    const animate = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(eased * target);
+      if (progress < 1) {
+        raf = requestAnimationFrame(animate);
+      }
+    };
+    raf = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration, prefersReducedMotion]);
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-teal-600 selection:text-white">
-      {/* Navigation Header */}
+    <span ref={ref} className="tabular-nums font-heading font-bold text-canopy">
+      {value.toFixed(3)}
+    </span>
+  );
+}
+
+/* ── MAIN PAGE ──────────────────────────────────────────────── */
+export default function HomePage() {
+  const [exploreLocation, setExploreLocation] = useState<GeocodedLocation | null>(null);
+  const [exploreCoords, setExploreCoords] = useState<{ lat: number; lon: number } | null>(null);
+
+  const handleExploreSelect = (loc: GeocodedLocation) => {
+    setExploreLocation(loc);
+    setExploreCoords({ lat: loc.lat, lon: loc.lon });
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      {/* Hero Section */}
-      <header className="relative overflow-hidden bg-white border-b border-slate-200 pt-20 pb-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-semibold mb-6 shadow-xs">
-            <Droplets className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
-            <span>NeerDrishti नीरदृष्टी • AI & Multi-Spectral Telemetry</span>
-          </div>
+      {/* ═══════════════════════════════════════════════════════
+          HERO — Split: copy left, data visualization right
+          ═══════════════════════════════════════════════════════ */}
+      <header className="relative bg-surface border-b border-strata">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+            {/* Left column — copy */}
+            <div className="lg:col-span-7 flex flex-col">
+              <h1 className="text-[32px] sm:text-[40px] lg:text-[48px] font-bold tracking-tight leading-[1.1] text-basalt">
+                See what's really happening{" "}
+                <span className="text-reservoir">on the ground.</span>
+              </h1>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.14]">
-            Autonomous Telemetry Auditing for <span className="text-teal-600">Watershed Security</span>
-          </h1>
+              <p className="mt-5 text-[15px] sm:text-base text-basalt-light leading-relaxed max-w-xl">
+                NeerDrishti cross-checks field photos against Sentinel-2 satellite data
+                to verify water conservation work — check dams, farm ponds, afforestation — at
+                any coordinate on earth. No more unverifiable claims or ghost projects.
+              </p>
 
-          <p className="mt-6 text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
-            Eliminate ghost conservation projects and unverifiable claims. NeerDrishti combines multi-spectral telemetry (NDVI & NDWI) with zero-shot on-ground AI to verify check dams, farm ponds, and afforestation in real time.
-          </p>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-reservoir hover:bg-reservoir-light text-white text-[14px] font-semibold transition-colors"
+                >
+                  Explore Any Location
+                </Link>
 
-          {/* Action Buttons */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition-all shadow-md shadow-teal-700/20 cursor-pointer"
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Launch Dashboard</span>
-              <ArrowRight className="w-4 h-4 ml-1" />
-            </Link>
+                <a
+                  href="#how-it-works"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[14px] font-medium text-basalt-light hover:text-basalt border border-strata-mid hover:border-strata-deep transition-colors"
+                >
+                  <span>How it works</span>
+                  <ArrowDown className="w-3.5 h-3.5" />
+                </a>
+              </div>
 
-            <Link
-              href="/team"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm border border-slate-200 transition-all cursor-pointer"
-            >
-              <Users className="w-4 h-4 text-slate-600" />
-              <span>Meet the Team</span>
-            </Link>
-          </div>
-
-          {/* Trust badges */}
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-6 pt-8 border-t border-slate-100 text-xs font-medium text-slate-500 w-full max-w-2xl">
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Vegetation & Water Indices</span>
+              {/* Trust line — no checkmark badges, just plain text */}
+              <p className="mt-10 text-[12px] text-basalt-light/50 leading-relaxed">
+                Built on Sentinel-2 multispectral imagery, OpenStreetMap geocoding,
+                and MobileNetV3 deep vision classification. Open data, verifiable results.
+              </p>
             </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Zero-Trust OpenCLIP</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Single-Page PDF Exports</span>
+
+            {/* Right column — data visualization card */}
+            <div className="lg:col-span-5">
+              <div className="bg-strata/60 border border-strata-mid rounded-lg p-5 sm:p-6">
+                {/* Mini satellite tile placeholder */}
+                <div className="w-full aspect-[4/3] rounded-md bg-basalt/5 border border-strata-mid flex items-center justify-center relative overflow-hidden">
+                  {/* Faux satellite grid lines */}
+                  <div className="absolute inset-0 opacity-[0.04]" style={{
+                    backgroundImage: `
+                      linear-gradient(var(--color-basalt) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--color-basalt) 1px, transparent 1px)
+                    `,
+                    backgroundSize: "40px 40px",
+                  }} />
+
+                  {/* Pin + NDVI readout — the ONE animated moment */}
+                  <div className="relative z-10 flex flex-col items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-reservoir ring-4 ring-reservoir/20" />
+                    <div className="bg-surface/90 backdrop-blur-sm border border-strata-mid rounded-md px-4 py-2.5 flex flex-col items-center">
+                      <span className="text-[10px] font-medium text-basalt-light/60 uppercase tracking-wide font-body">
+                        Vegetation Index (NDVI)
+                      </span>
+                      <span className="text-2xl mt-0.5">
+                        <NdviCounter target={0.718} />
+                      </span>
+                      <span className="text-[10px] text-canopy/70 font-medium mt-0.5">
+                        Healthy vegetation detected
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Data context below tile */}
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="flex flex-col">
+                    <span className="text-[11px] text-basalt-light/50 font-medium">Water Index</span>
+                    <span className="text-[15px] font-semibold text-sentinel tabular-nums font-body">0.142</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[11px] text-basalt-light/50 font-medium">Coordinates</span>
+                    <span className="text-[13px] font-medium text-basalt tabular-nums font-body">19.085°N, 74.750°E</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Core Capabilities Grid */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-teal-700 font-mono">
-            Full-Spectrum Verification Engine
-          </h2>
-          <p className="mt-2 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            How Telemetry & Ground-Truth Intelligence Converge
-          </p>
-          <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed">
-            Standard audits rely on self-reported spreadsheets or easily fabricated photographs. NeerDrishti bridges the gap using objective, immutable physical measurements.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Card 1 */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600 mb-4">
-                <Activity className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-bold text-slate-900">Multi-Spectral Telemetry</h3>
-              <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Automated surface reflectance queries computing precise NDVI vegetation and NDWI moisture indices across seasons.
-              </p>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-mono text-teal-700 font-semibold">
-              NDVI • NDWI • Moisture Delta
-            </div>
+      {/* ═══════════════════════════════════════════════════════
+          EXPLORE ANY LOCATION — Centerpiece Interaction
+          ═══════════════════════════════════════════════════════ */}
+      <section className="bg-surface border-b border-strata">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          {/* Section intro — colored left border, NOT all-caps eyebrow */}
+          <div className="border-l-[3px] border-reservoir pl-4 mb-8">
+            <h2 className="text-[22px] sm:text-[28px] font-semibold text-basalt">
+              Explore any location on earth
+            </h2>
+            <p className="mt-1.5 text-[14px] text-basalt-light leading-relaxed max-w-2xl">
+              Type a village, river, or set of coordinates. NeerDrishti pulls live satellite
+              data for that spot — vegetation health, water presence, seasonal change — so
+              you can verify conditions without traveling there.
+            </p>
           </div>
 
-          {/* Card 2 */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600 mb-4">
-                <Camera className="w-6 h-6" />
+          {/* Search + Map */}
+          <div className="rounded-lg border border-strata-mid bg-strata/30 overflow-hidden">
+            {/* Search bar */}
+            <div className="px-4 sm:px-6 py-4 border-b border-strata-mid bg-surface flex items-center gap-3">
+              <Search className="w-5 h-5 text-basalt-light/40 shrink-0" />
+              <div className="flex-1">
+                <LocationSearchInput
+                  onLocationSelect={handleExploreSelect}
+                  initialQuery=""
+                  placeholder="Search any place — Nashik, Godavari River, 19.08°N 74.75°E…"
+                />
               </div>
-              <h3 className="text-base font-bold text-slate-900">OpenCLIP Zero-Shot AI</h3>
-              <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Evaluates on-ground photographs using state-of-the-art vision-language representations to verify that claimed civil structures actually exist.
-              </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-mono text-sky-700 font-semibold">
-              Multi-Class Intervention Scoring
-            </div>
-          </div>
 
-          {/* Card 3 */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 mb-4">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-bold text-slate-900">EXIF Sensor Forensics</h3>
-              <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Validates camera hardware tags, exposure timestamps, and GPS coordinates to stop reused web photos or fraudulent geotag tampering.
-              </p>
+            {/* Map */}
+            <div className="h-[320px] sm:h-[400px] lg:h-[440px]">
+              <WatershedMap
+                sites={[]}
+                selectedSite={null}
+                onSelectSite={() => {}}
+                onSelectCoords={() => {}}
+                targetCoords={exploreCoords}
+                targetLocationName={exploreLocation?.name}
+              />
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-mono text-emerald-700 font-semibold">
-              Hardware Tamper Detection
-            </div>
-          </div>
 
-          {/* Card 4 */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 mb-4">
-                <FileText className="w-6 h-6" />
+            {/* CTA below map */}
+            {exploreLocation && (
+              <div className="px-4 sm:px-6 py-3 border-t border-strata-mid bg-surface flex items-center justify-between">
+                <div className="text-[13px] text-basalt-light">
+                  <span className="font-semibold text-basalt">{exploreLocation.name}</span>
+                  <span className="mx-1.5 text-strata-deep">·</span>
+                  <span className="tabular-nums">{exploreLocation.lat.toFixed(4)}°N, {exploreLocation.lon.toFixed(4)}°E</span>
+                </div>
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-1 text-[13px] font-semibold text-reservoir hover:text-reservoir-light transition-colors"
+                >
+                  <span>Open full dashboard</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
-              <h3 className="text-base font-bold text-slate-900">Clean Single-Page PDF</h3>
-              <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Exports official verification certificates containing strictly the site coordinates, telemetry data, and audit checklist without web chrome.
-              </p>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-mono text-indigo-700 font-semibold">
-              Printable Audit Certificate
-            </div>
+            )}
           </div>
         </div>
       </section>
 
-      {/* 3-Step Workflow Section */}
-      <section className="bg-white border-y border-slate-200 py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-teal-700 font-mono">
-              The 3-Step Verification Pipeline
+      {/* ═══════════════════════════════════════════════════════
+          HOW IT WORKS — Pipeline strip, not numbered cards
+          ═══════════════════════════════════════════════════════ */}
+      <section id="how-it-works" className="border-b border-strata">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div className="border-l-[3px] border-sentinel pl-4 mb-10">
+            <h2 className="text-[22px] sm:text-[28px] font-semibold text-basalt">
+              How verification works
             </h2>
-            <p className="mt-2 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-              From Raw Coordinates to Certified Audit
+            <p className="mt-1.5 text-[14px] text-basalt-light max-w-2xl">
+              One photo, one set of coordinates, one verified report.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          {/* Pipeline — horizontal on desktop, vertical on mobile */}
+          <div className="flex flex-col lg:flex-row lg:items-stretch gap-0">
             {/* Step 1 */}
-            <div className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-2xl border border-slate-200">
-              <div className="w-12 h-12 rounded-2xl bg-teal-600 text-white font-bold font-mono text-lg flex items-center justify-center mb-4 shadow-sm">
-                01
+            <div className="flex-1 flex flex-col lg:flex-row items-start lg:items-center gap-4 p-5 sm:p-6 bg-surface rounded-lg lg:rounded-r-none border border-strata-mid lg:border-r-0">
+              <div className="w-10 h-10 rounded-md bg-reservoir-faint flex items-center justify-center shrink-0">
+                <Camera className="w-5 h-5 text-reservoir" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">Search & Target Basin</h3>
-              <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Use the real-time Nominatim geocoder or pan the interactive watershed map to target any village, stream, or watershed parcel worldwide.
-              </p>
+              <div>
+                <h3 className="text-[15px] font-semibold text-basalt">Upload a field photo</h3>
+                <p className="text-[13px] text-basalt-light mt-0.5 leading-relaxed">
+                  Drop a geotagged photo from your phone. We extract the GPS coordinates
+                  and camera metadata automatically.
+                </p>
+              </div>
+            </div>
+
+            {/* Connector */}
+            <div className="hidden lg:flex items-center px-0">
+              <div className="w-8 h-[2px] bg-strata-mid" />
+              <ChevronRight className="w-4 h-4 text-strata-deep -mx-1" />
+            </div>
+            <div className="lg:hidden flex justify-center py-1">
+              <div className="w-[2px] h-6 bg-strata-mid" />
             </div>
 
             {/* Step 2 */}
-            <div className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-2xl border border-slate-200">
-              <div className="w-12 h-12 rounded-2xl bg-teal-600 text-white font-bold font-mono text-lg flex items-center justify-center mb-4 shadow-sm">
-                02
+            <div className="flex-1 flex flex-col lg:flex-row items-start lg:items-center gap-4 p-5 sm:p-6 bg-surface border border-strata-mid lg:border-x-0 rounded-lg lg:rounded-none">
+              <div className="w-10 h-10 rounded-md bg-sentinel-faint flex items-center justify-center shrink-0">
+                <Satellite className="w-5 h-5 text-sentinel" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">Execute Spectral Query</h3>
-              <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Our server computes spectral surface indices, evaluating seasonal baseline and post-intervention vegetation and water retention deltas.
-              </p>
+              <div>
+                <h3 className="text-[15px] font-semibold text-basalt">Satellite cross-check</h3>
+                <p className="text-[13px] text-basalt-light mt-0.5 leading-relaxed">
+                  We query Sentinel-2 for that exact spot — vegetation index, water index,
+                  and seasonal change — then compare against what the photo shows.
+                </p>
+              </div>
+            </div>
+
+            {/* Connector */}
+            <div className="hidden lg:flex items-center px-0">
+              <div className="w-8 h-[2px] bg-strata-mid" />
+              <ChevronRight className="w-4 h-4 text-strata-deep -mx-1" />
+            </div>
+            <div className="lg:hidden flex justify-center py-1">
+              <div className="w-[2px] h-6 bg-strata-mid" />
             </div>
 
             {/* Step 3 */}
-            <div className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-2xl border border-slate-200">
-              <div className="w-12 h-12 rounded-2xl bg-teal-600 text-white font-bold font-mono text-lg flex items-center justify-center mb-4 shadow-sm">
-                03
+            <div className="flex-1 flex flex-col lg:flex-row items-start lg:items-center gap-4 p-5 sm:p-6 bg-surface rounded-lg lg:rounded-l-none border border-strata-mid lg:border-l-0">
+              <div className="w-10 h-10 rounded-md bg-canopy-faint flex items-center justify-center shrink-0">
+                <FileCheck className="w-5 h-5 text-canopy" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">Cross-Validate & Export</h3>
-              <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Upload geotagged field photos for OpenCLIP matching. Generate a clean, official single-page PDF certificate with 0% chrome or clutter.
-              </p>
+              <div>
+                <h3 className="text-[15px] font-semibold text-basalt">Verified report</h3>
+                <p className="text-[13px] text-basalt-light mt-0.5 leading-relaxed">
+                  Download a PDF certificate with the photo, satellite data, health score,
+                  and any anomaly flags — ready for auditors or funders.
+                </p>
+              </div>
             </div>
-          </div>
-
-          <div className="mt-12 text-center">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition-all shadow-md shadow-teal-700/20"
-            >
-              <span>Try Live in Dashboard</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* Supported Interventions */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Supported Intervention Typologies</h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-2">
-            Tailored spectral response baselines and AI classification models for all major soil and water conservation structures.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {[
-            { label: "Check Dams", desc: "Nala Bunds & Weirs" },
-            { label: "Farm Ponds", desc: "Rainwater Reservoirs" },
-            { label: "Plantations", desc: "Afforestation Works" },
-            { label: "Contour Trenches", desc: "Continuous CCT" },
-            { label: "Waterbody Desilting", desc: "Storage Restoration" },
-            { label: "Percolation Tanks", desc: "Groundwater Recharge" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="bg-white p-4 rounded-xl border border-slate-200 text-center flex flex-col items-center justify-center shadow-xs"
-            >
-              <Droplets className="w-5 h-5 text-teal-600 mb-1.5" />
-              <div className="text-xs font-bold text-slate-900">{item.label}</div>
-              <div className="text-[10px] text-slate-500 mt-0.5">{item.desc}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Bottom CTA Banner */}
-      <section className="px-4 sm:px-6 lg:px-8 pb-16 max-w-7xl mx-auto w-full">
-        <div className="rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-700 text-white p-8 sm:p-12 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
-          <div className="flex flex-col gap-2 text-center sm:text-left">
-            <h3 className="text-2xl sm:text-3xl font-extrabold">Ready to audit watershed projects?</h3>
-            <p className="text-xs sm:text-sm text-teal-100 max-w-xl">
-              Access the interactive geospatial map, run on-demand telemetry queries, and generate clean PDF verification certificates now.
-            </p>
-          </div>
-          <Link
-            href="/dashboard"
-            className="px-8 py-3.5 rounded-xl bg-white text-teal-800 hover:bg-slate-100 font-bold text-sm transition-all shadow-md flex items-center gap-2 flex-shrink-0 cursor-pointer"
-          >
-            <span>Launch Dashboard</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-10 px-4 sm:px-6 lg:px-8 text-slate-600 text-xs">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-          <div>
-            <div className="font-bold text-slate-900 flex items-center gap-2 justify-center sm:justify-start">
-              <Droplets className="w-4 h-4 text-teal-600" />
-              <span>NeerDrishti (नीरदृष्टी) • Watershed Intelligence</span>
-            </div>
-            <p className="text-[11px] text-slate-500 mt-1">
-              OpenStreetMap • OpenCLIP AI • Multi-Spectral Telemetry
+      {/* ═══════════════════════════════════════════════════════
+          CAPABILITIES — Asymmetric layout
+          ═══════════════════════════════════════════════════════ */}
+      <section className="bg-surface border-b border-strata">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div className="border-l-[3px] border-canopy pl-4 mb-10">
+            <h2 className="text-[22px] sm:text-[28px] font-semibold text-basalt">
+              What makes this different
+            </h2>
+            <p className="mt-1.5 text-[14px] text-basalt-light max-w-2xl">
+              Standard audits rely on self-reported spreadsheets or unverifiable photographs.
+              NeerDrishti uses objective physical measurements that anyone can independently check.
             </p>
           </div>
 
-          <div className="flex items-center gap-6">
-            <Link href="/" className="hover:text-teal-600 transition-colors">
-              Home
-            </Link>
-            <Link href="/dashboard" className="hover:text-teal-600 transition-colors">
-              Dashboard
-            </Link>
-            <Link href="/team" className="hover:text-teal-600 transition-colors">
-              Team
-            </Link>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+            {/* Large feature card — the distinctive thing */}
+            <div className="lg:col-span-3 p-6 sm:p-8 rounded-lg border border-strata-mid bg-strata/20">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="w-10 h-10 rounded-md bg-reservoir-faint flex items-center justify-center shrink-0">
+                  <Shield className="w-5 h-5 text-reservoir" />
+                </div>
+                <div>
+                  <h3 className="text-[17px] font-semibold text-basalt">
+                    Photo × Satellite cross-validation
+                  </h3>
+                  <p className="text-[13px] text-basalt-light mt-1 leading-relaxed">
+                    The core verification: a deep vision model classifies your field photo
+                    (check dam, farm pond, plantation, urban area), while Sentinel-2 provides
+                    independent vegetation and water measurements for the same coordinates.
+                    If the photo claims "check dam" but the satellite sees no water retention,
+                    that's flagged as an anomaly.
+                  </p>
+                </div>
+              </div>
+
+              {/* Mini data example */}
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-strata-mid">
+                <div className="flex flex-col">
+                  <span className="text-[11px] text-basalt-light/50 font-medium">Photo AI</span>
+                  <span className="text-[14px] font-semibold text-basalt">Check Dam</span>
+                  <span className="text-[11px] text-canopy font-medium">82% confidence</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[11px] text-basalt-light/50 font-medium">NDVI</span>
+                  <span className="text-[14px] font-semibold text-canopy tabular-nums">+0.368</span>
+                  <span className="text-[11px] text-basalt-light/50">Vegetation present</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[11px] text-basalt-light/50 font-medium">NDWI</span>
+                  <span className="text-[14px] font-semibold text-sentinel tabular-nums">+0.076</span>
+                  <span className="text-[11px] text-basalt-light/50">Water detected</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[11px] text-basalt-light/50 font-medium">Verdict</span>
+                  <span className="text-[14px] font-semibold text-canopy">Confirmed</span>
+                  <span className="text-[11px] text-basalt-light/50">Photo matches satellite</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right column — three smaller supporting features */}
+            <div className="lg:col-span-2 flex flex-col gap-4">
+              <div className="flex-1 p-5 rounded-lg border border-strata-mid bg-surface">
+                <div className="flex items-center gap-3 mb-2">
+                  <Fingerprint className="w-4.5 h-4.5 text-alluvial" />
+                  <h3 className="text-[14px] font-semibold text-basalt">EXIF forensics</h3>
+                </div>
+                <p className="text-[13px] text-basalt-light leading-relaxed">
+                  Validates camera hardware tags, timestamps, and GPS coordinates.
+                  Catches reused web photos and tampered geotags.
+                </p>
+              </div>
+
+              <div className="flex-1 p-5 rounded-lg border border-strata-mid bg-surface">
+                <div className="flex items-center gap-3 mb-2">
+                  <Satellite className="w-4.5 h-4.5 text-sentinel" />
+                  <h3 className="text-[14px] font-semibold text-basalt">Seasonal baselines</h3>
+                </div>
+                <p className="text-[13px] text-basalt-light leading-relaxed">
+                  Compares pre-intervention and post-intervention satellite data to
+                  measure actual environmental change over time, not a single snapshot.
+                </p>
+              </div>
+
+              <div className="flex-1 p-5 rounded-lg border border-strata-mid bg-surface">
+                <div className="flex items-center gap-3 mb-2">
+                  <FileCheck className="w-4.5 h-4.5 text-canopy" />
+                  <h3 className="text-[14px] font-semibold text-basalt">Clean PDF certificates</h3>
+                </div>
+                <p className="text-[13px] text-basalt-light leading-relaxed">
+                  One-page audit report with coordinates, satellite measurements,
+                  photo evidence, and health score. No web chrome, ready for print.
+                </p>
+              </div>
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          SUPPORTED INTERVENTIONS
+          ═══════════════════════════════════════════════════════ */}
+      <section className="border-b border-strata">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div className="border-l-[3px] border-alluvial pl-4 mb-8">
+            <h2 className="text-[22px] sm:text-[28px] font-semibold text-basalt">
+              Works across intervention types
+            </h2>
+            <p className="mt-1.5 text-[14px] text-basalt-light max-w-2xl">
+              Tailored spectral baselines and AI classification for all major soil
+              and water conservation structures.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {[
+              { label: "Check Dams", desc: "Nala bunds & weirs" },
+              { label: "Farm Ponds", desc: "Rainwater reservoirs" },
+              { label: "Plantations", desc: "Afforestation works" },
+              { label: "Contour Trenches", desc: "Continuous CCT" },
+              { label: "Desilting", desc: "Storage restoration" },
+              { label: "Percolation Tanks", desc: "Groundwater recharge" },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="p-4 rounded-lg border border-strata-mid bg-surface text-center"
+              >
+                <div className="text-[13px] font-semibold text-basalt">{item.label}</div>
+                <div className="text-[11px] text-basalt-light/60 mt-0.5">{item.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          FOOTER — Minimal
+          ═══════════════════════════════════════════════════════ */}
+      <footer className="bg-surface border-t border-strata py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[12px] text-basalt-light/50">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-reservoir flex items-center justify-center text-white text-[9px] font-heading font-bold">
+              नी
+            </div>
+            <span className="font-heading font-medium text-basalt-light">NeerDrishti</span>
+          </div>
+
+          <div className="flex items-center gap-5">
+            <Link href="/" className="hover:text-basalt transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-basalt transition-colors">Dashboard</Link>
+            <Link href="/team" className="hover:text-basalt transition-colors">Team</Link>
+          </div>
+
+          <p>Data: Sentinel-2, OpenStreetMap</p>
         </div>
       </footer>
     </div>

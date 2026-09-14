@@ -17,48 +17,44 @@ export const HealthGauge: React.FC<HealthGaugeProps> = ({
 }) => {
   const safeScore = Math.max(0, Math.min(100, Math.round(score ?? 0)));
 
-  // Determine color theme
-  let strokeColor = "#0284c7"; // sky-600
-  let gradeBg = "bg-sky-50 text-sky-700 border-sky-300";
+  // Color by score using palette
+  let strokeColor = "#3B82C8"; // sentinel
+  let gradeBg = "bg-sentinel-faint text-sentinel border-sentinel/20";
 
   if (safeScore >= 80) {
-    strokeColor = "#059669"; // emerald-600
-    gradeBg = "bg-emerald-50 text-emerald-700 border-emerald-300";
+    strokeColor = "#4D8B31"; // canopy
+    gradeBg = "bg-canopy-faint text-canopy border-canopy/20";
   } else if (safeScore >= 65) {
-    strokeColor = "#0d9488"; // teal-600
-    gradeBg = "bg-teal-50 text-teal-700 border-teal-300";
+    strokeColor = "#1A6B5A"; // reservoir
+    gradeBg = "bg-reservoir-faint text-reservoir border-reservoir/20";
   } else if (safeScore >= 50) {
-    strokeColor = "#d97706"; // amber-600
-    gradeBg = "bg-amber-50 text-amber-700 border-amber-300";
+    strokeColor = "#C4956A"; // alluvial
+    gradeBg = "bg-alluvial-faint text-alluvial border-alluvial/20";
   } else {
-    strokeColor = "#dc2626"; // red-600
-    gradeBg = "bg-red-50 text-red-700 border-red-300";
+    strokeColor = "#C44536"; // danger
+    gradeBg = "bg-danger-faint text-danger border-danger/20";
   }
 
-  // Radius & circumference for SVG radial arc
   const radius = 54;
   const circumference = 2 * Math.PI * radius;
-  // Use a 260 degree arc
   const arcLength = circumference * 0.75;
   const strokeDashoffset = arcLength - (arcLength * safeScore) / 100;
 
   return (
     <div className="flex flex-col items-center">
-      {/* Radial Gauge Container */}
+      {/* Radial Gauge */}
       <div className="relative w-36 h-36 flex items-center justify-center">
         <svg className="w-full h-full transform -rotate-135" viewBox="0 0 130 130">
-          {/* Background track */}
           <circle
             cx="65"
             cy="65"
             r={radius}
-            stroke="#e2e8f0"
+            stroke="var(--color-strata-mid)"
             strokeWidth="10"
             fill="transparent"
             strokeDasharray={`${arcLength} ${circumference}`}
             strokeLinecap="round"
           />
-          {/* Active progress track */}
           <circle
             cx="65"
             cy="65"
@@ -75,31 +71,29 @@ export const HealthGauge: React.FC<HealthGaugeProps> = ({
           />
         </svg>
 
-        {/* Center score display */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pt-2">
-          <div className="text-3xl font-bold font-mono text-slate-900 tracking-tight">
+          <div className="text-3xl font-heading font-bold text-basalt tabular-nums">
             {safeScore}
           </div>
-          <div className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
+          <div className="text-[10px] font-medium text-basalt-light/50">
             Health Score
           </div>
         </div>
 
-        {/* Grade badge */}
         <div
-          className={`absolute bottom-0 right-2 px-2 py-0.5 rounded-md text-xs font-bold font-mono border shadow-xs ${gradeBg}`}
+          className={`absolute bottom-0 right-2 px-2 py-0.5 rounded text-[11px] font-heading font-semibold border ${gradeBg}`}
         >
-          Grade {grade || "?"}
+          {grade || "?"}
         </div>
       </div>
 
-      {/* Mini deltas */}
-      <div className="w-full grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-200 text-xs">
-        <div className="bg-slate-50 rounded p-1.5 border border-slate-200">
-          <div className="text-[10px] text-slate-500 uppercase font-mono">Δ NDVI (Veg)</div>
+      {/* Deltas */}
+      <div className="w-full grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-strata-mid text-[12px]">
+        <div className="bg-strata/50 rounded p-1.5 border border-strata-mid">
+          <div className="text-[10px] text-basalt-light/50 font-medium">Δ NDVI</div>
           <div
-            className={`font-mono font-semibold ${
-              (ndviDelta ?? 0) >= 0 ? "text-emerald-600" : "text-red-600"
+            className={`font-semibold tabular-nums ${
+              (ndviDelta ?? 0) >= 0 ? "text-canopy" : "text-danger"
             }`}
           >
             {(ndviDelta ?? 0) >= 0 ? "+" : ""}
@@ -107,11 +101,11 @@ export const HealthGauge: React.FC<HealthGaugeProps> = ({
           </div>
         </div>
 
-        <div className="bg-slate-50 rounded p-1.5 border border-slate-200">
-          <div className="text-[10px] text-slate-500 uppercase font-mono">Δ NDWI (Water)</div>
+        <div className="bg-strata/50 rounded p-1.5 border border-strata-mid">
+          <div className="text-[10px] text-basalt-light/50 font-medium">Δ NDWI</div>
           <div
-            className={`font-mono font-semibold ${
-              (ndwiDelta ?? 0) >= 0 ? "text-sky-600" : "text-red-600"
+            className={`font-semibold tabular-nums ${
+              (ndwiDelta ?? 0) >= 0 ? "text-sentinel" : "text-danger"
             }`}
           >
             {(ndwiDelta ?? 0) >= 0 ? "+" : ""}
