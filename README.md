@@ -2,7 +2,7 @@
 
 
 
-> **Field Evidence × Satellite Remote Sensing** — Production-grade ground-truth verification and condition monitoring platform for watershed interventions.
+> **Field Evidence × Satellite Remote Sensing** — Ground-truth verification and condition monitoring platform for watershed interventions.
 
 ---
 
