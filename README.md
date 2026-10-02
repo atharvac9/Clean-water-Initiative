@@ -1,12 +1,6 @@
 # Clean Water Initiative 
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
-[![Next.js 16](https://img.shields.io/badge/Frontend-Next.js%2016-black.svg)](https://nextjs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS%20v4-38bdf8.svg)](https://tailwindcss.com/)
-[![Google Earth Engine](https://img.shields.io/badge/Satellite-Google%20Earth%20Engine-34A853.svg)](https://earthengine.google.com/)
-[![OpenAI CLIP](https://img.shields.io/badge/Vision%20AI-OpenCLIP%20Zero--Shot-74aa9c.svg)](https://github.com/mlfoundations/open_clip)
-[![CI](https://github.com/atharvac9/Clean-water-Initiative/actions/workflows/ci.yml/badge.svg)](https://github.com/atharvac9/Clean-water-Initiative/actions)
+
 
 > **Field Evidence × Satellite Remote Sensing** — Production-grade ground-truth verification and condition monitoring platform for watershed interventions.
 
